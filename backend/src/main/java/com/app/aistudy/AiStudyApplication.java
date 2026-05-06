@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class AiStudyApplication {
+    //prueba
 
     public static void main(String[] args) {
         SpringApplication.run(AiStudyApplication.class, args);
