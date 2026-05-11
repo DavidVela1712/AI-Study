@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
 
     private static final long serialVerssionUID = 1L;
@@ -13,7 +13,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_user")
-    private int idUser;
+    private Integer idUser;
 
     @Column(name = "name")
     private String name;
@@ -29,7 +29,7 @@ public class User {
 
     public User() {super();}
 
-    public User(int idUser, String name, String email, String passwordHash, Timestamp createdAt) {
+    public User(Integer idUser, String name, String email, String passwordHash, Timestamp createdAt) {
         this.idUser = idUser;
         this.name = name;
         this.email = email;
@@ -37,11 +37,11 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    public int getIdUser() {
+    public Integer getIdUser() {
         return idUser;
     }
 
-    public void setIdUser(int idUser) {
+    public void setIdUser(Integer idUser) {
         this.idUser = idUser;
     }
 
