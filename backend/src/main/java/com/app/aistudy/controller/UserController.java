@@ -19,8 +19,24 @@ public class UserController {
         return userService.findAll();
     }
 
+    @GetMapping("/{id}")
+    public User getUserById (@PathVariable Integer id){
+        return userService.findUser(id);
+    }
+
     @PostMapping
     public User createUser (@RequestBody User user){
         return userService.createUser(user);
+    }
+
+    @PutMapping("/{id}")
+    public User updateUser (@PathVariable Integer id, @RequestBody User newDataUser){
+        return userService.updateUser(id, newDataUser);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteUser (@PathVariable Integer id){
+        userService.deleteUser(id);
+        return "Usuario eliminado correctamente";
     }
 }

@@ -5,6 +5,7 @@ import com.app.aistudy.resources.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -40,6 +41,27 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public User findUser(Integer id) {
+        return repository.findById(id)
+                .orElseThrow( () -> new RuntimeException("Usario no encontrado"));
+    }
+
+    @Override
+    public User updateUser(Integer id, User newDataUser) {
+        User user = findUser(id);
+        if (newDataUser.getName()!=null){
+            user.setName(newDataUser.getName());
+        }
+        if (newDataUser.getEmail()!=null) {
+            user.setEmail(newDataUser.getEmail());
+        }
+        if (newDataUser.getPasswordHash()!=null) {
+            user.setPasswordHash(newDataUser.getPasswordHash());
+        }
+        return repository.save(user);
+    }
+
+    @Override
     public boolean addUser(User user) {
         try {
             repository.save(user);
@@ -57,6 +79,13 @@ public class UserServiceImpl implements UserService{
         if (user.getPasswordHash() == null || user.getEmail() == null){
             throw new RuntimeException("Correo o contraseña no pueden ser null");
         }
+        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return repository.save(user);
+    }
+
+    @Override
+    public void deleteUser(Integer id) {
+        User user = findUser(id);
+        repository.delete(user);
     }
 }
