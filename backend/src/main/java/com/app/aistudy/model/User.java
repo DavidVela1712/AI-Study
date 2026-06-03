@@ -22,18 +22,18 @@ public class User {
     private String email;
 
     @Column(name = "password_hash")
-    private String passwordHash;
+    private String password;
 
     @Column(name = "created_at")
     private Timestamp createdAt;
 
     public User() {super();}
 
-    public User(Integer idUser, String name, String email, String passwordHash, Timestamp createdAt) {
+    public User(Integer idUser, String name, String email, String password, Timestamp createdAt) {
         this.idUser = idUser;
         this.name = name;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.createdAt = createdAt;
     }
 
@@ -61,12 +61,12 @@ public class User {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Timestamp getCreatedAt() {
@@ -83,7 +83,7 @@ public class User {
                 "idUser=" + idUser +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
-                ", passwordHash='" + passwordHash + '\'' +
+                ", password='" + password + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }

@@ -1,6 +1,7 @@
 package com.app.aistudy.service;
 
 import com.app.aistudy.dto.UserDTO;
+import com.app.aistudy.dto.UserResponseDTO;
 import com.app.aistudy.model.User;
 import com.app.aistudy.resources.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,19 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository repository;
 
+    public UserResponseDTO convertToResponseDTO(User user) {
+        UserResponseDTO savedUser = new UserResponseDTO();
+        savedUser.setIdUser(user.getIdUser());
+        savedUser.setEmail(user.getEmail());
+        savedUser.setName(user.getName());
+        return savedUser;
+    }
+
     @Override
     public User login(User user) {
         System.out.println("Usuario recibido en login: "+ user);
 
-        if (user.getEmail() == null || user.getPasswordHash() == null){
+        if (user.getEmail() == null || user.getPassword() == null){
             throw new RuntimeException("Correo o contraseña vacío");
         }
 
@@ -30,7 +39,7 @@ public class UserServiceImpl implements UserService{
             throw new RuntimeException("Usuario no encontrado");
         }
 
-        if (!user.getPasswordHash().equals(userDB.getPasswordHash())){
+        if (!user.getPassword().equals(userDB.getPassword())){
             throw new RuntimeException("Contraseña incorrecta");
         }
         return userDB;
@@ -48,7 +57,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User updateUser(Integer id, UserDTO newDataUser) {
+    public UserResponseDTO updateUser(Integer id, UserDTO newDataUser) {
         User user = findUser(id);
         if (newDataUser.getName()!=null){
             user.setName(newDataUser.getName());
@@ -57,9 +66,9 @@ public class UserServiceImpl implements UserService{
             user.setEmail(newDataUser.getEmail());
         }
         if (newDataUser.getPassword()!=null) {
-            user.setPasswordHash(newDataUser.getPassword());
+            user.setPassword(newDataUser.getPassword());
         }
-        return repository.save(user);
+        return convertToResponseDTO(repository.save(user));
     }
 
     @Override
@@ -74,7 +83,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User createUser(UserDTO user) {
+    public UserResponseDTO createUser(UserDTO user) {
         System.out.println(user.toString());
 
         if (user.getPassword() == null || user.getEmail() == null){
@@ -83,9 +92,9 @@ public class UserServiceImpl implements UserService{
         User newUser = new User();
         newUser.setName(user.getName());
         newUser.setEmail(user.getEmail());
-        newUser.setPasswordHash(user.getPassword());
+        newUser.setPassword(user.getPassword());
         newUser.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        return repository.save(newUser);
+        return convertToResponseDTO(repository.save(newUser));
     }
 
     @Override
