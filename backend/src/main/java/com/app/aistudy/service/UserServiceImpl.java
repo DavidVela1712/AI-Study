@@ -1,5 +1,6 @@
 package com.app.aistudy.service;
 
+import com.app.aistudy.dto.UserDTO;
 import com.app.aistudy.model.User;
 import com.app.aistudy.resources.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User updateUser(Integer id, User newDataUser) {
+    public User updateUser(Integer id, UserDTO newDataUser) {
         User user = findUser(id);
         if (newDataUser.getName()!=null){
             user.setName(newDataUser.getName());
@@ -55,8 +56,8 @@ public class UserServiceImpl implements UserService{
         if (newDataUser.getEmail()!=null) {
             user.setEmail(newDataUser.getEmail());
         }
-        if (newDataUser.getPasswordHash()!=null) {
-            user.setPasswordHash(newDataUser.getPasswordHash());
+        if (newDataUser.getPassword()!=null) {
+            user.setPasswordHash(newDataUser.getPassword());
         }
         return repository.save(user);
     }
@@ -73,14 +74,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User createUser(User user) {
+    public User createUser(UserDTO user) {
         System.out.println(user.toString());
 
-        if (user.getPasswordHash() == null || user.getEmail() == null){
+        if (user.getPassword() == null || user.getEmail() == null){
             throw new RuntimeException("Correo o contraseña no pueden ser null");
         }
-        user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        return repository.save(user);
+        User newUser = new User();
+        newUser.setName(user.getName());
+        newUser.setEmail(user.getEmail());
+        newUser.setPasswordHash(user.getPassword());
+        newUser.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        return repository.save(newUser);
     }
 
     @Override

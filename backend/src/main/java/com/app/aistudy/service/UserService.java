@@ -1,5 +1,6 @@
 package com.app.aistudy.service;
 
+import com.app.aistudy.dto.UserDTO;
 import com.app.aistudy.model.User;
 
 import java.util.List;
@@ -13,11 +14,11 @@ public interface UserService {
 
     public User findUser(Integer id);
 
-    public User updateUser(Integer id, User newDataUser);
+    public User updateUser(Integer id, UserDTO newDataUser);
 
     public boolean addUser(User user);
 
-    public User createUser(User user);
+    public User createUser(UserDTO user);
 
     public void deleteUser(Integer id);
 }

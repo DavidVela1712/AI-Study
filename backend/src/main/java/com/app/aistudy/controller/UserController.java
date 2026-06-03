@@ -1,5 +1,6 @@
 package com.app.aistudy.controller;
 
+import com.app.aistudy.dto.UserDTO;
 import com.app.aistudy.model.User;
 import com.app.aistudy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +26,12 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser (@RequestBody User user){
+    public User createUser (@RequestBody UserDTO user){
         return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public User updateUser (@PathVariable Integer id, @RequestBody User newDataUser){
+    public User updateUser (@PathVariable Integer id, @RequestBody UserDTO newDataUser){
         return userService.updateUser(id, newDataUser);
     }
 
