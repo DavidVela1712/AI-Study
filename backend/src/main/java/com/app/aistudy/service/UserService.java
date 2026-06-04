@@ -11,9 +11,11 @@ public interface UserService {
 
     public User login(User user);
 
-    public List<User> findAll();
+    public UserResponseDTO convertToResponseDTO(User user);
 
-    public User findUser(Integer id);
+    public List<UserResponseDTO> findAll();
+
+    public UserResponseDTO findUser(Integer id);
 
     public UserResponseDTO updateUser(Integer id, UserDTO newDataUser);
 

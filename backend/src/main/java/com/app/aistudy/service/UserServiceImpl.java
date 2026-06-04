@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,6 +17,7 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository repository;
 
+    @Override
     public UserResponseDTO convertToResponseDTO(User user) {
         UserResponseDTO savedUser = new UserResponseDTO();
         savedUser.setIdUser(user.getIdUser());
@@ -46,19 +48,25 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> findAll() {
-        return repository.findAll();
+    public List<UserResponseDTO> findAll() {
+        List<UserResponseDTO> usersDTO = new ArrayList<>();
+        List<User> users = repository.findAll();
+        for (User user : users){
+            usersDTO.add(convertToResponseDTO(user));
+        }
+        return usersDTO;
     }
-
     @Override
-    public User findUser(Integer id) {
-        return repository.findById(id)
+    public UserResponseDTO findUser(Integer id) {
+        User user = repository.findById(id)
                 .orElseThrow( () -> new RuntimeException("Usario no encontrado"));
+        return convertToResponseDTO(user);
     }
 
     @Override
     public UserResponseDTO updateUser(Integer id, UserDTO newDataUser) {
-        User user = findUser(id);
+        User user = repository.findById(id)
+                .orElseThrow( () -> new RuntimeException("Usario no encontrado"));
         if (newDataUser.getName()!=null){
             user.setName(newDataUser.getName());
         }
@@ -99,7 +107,8 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void deleteUser(Integer id) {
-        User user = findUser(id);
+        User user = repository.findById(id)
+                .orElseThrow( () -> new RuntimeException("Usario no encontrado"));
         repository.delete(user);
     }
 }

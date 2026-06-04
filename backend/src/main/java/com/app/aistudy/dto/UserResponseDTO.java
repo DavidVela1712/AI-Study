@@ -1,6 +1,5 @@
 package com.app.aistudy.dto;
 
-import com.app.aistudy.model.User;
 
 public class UserResponseDTO {
 
