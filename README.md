@@ -45,7 +45,6 @@ La plataforma transforma documentos en recursos útiles para el aprendizaje, man
 - Creación de flashcards.
 - Generación de esquemas.
 - Historial de conversaciones.
-- Sistema de créditos para futuras versiones SaaS.
 
 ---
 
