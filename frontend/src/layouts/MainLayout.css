@@ -1,0 +1,30 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.main-layout__header {
+  padding: 1rem 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.main-layout__header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.main-layout__content {
+  flex: 1;
+  padding: 2rem;
+}
+
+.main-layout__footer {
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+
+.main-layout__footer p {
+  margin: 0;
+}
