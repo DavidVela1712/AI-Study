@@ -6,13 +6,13 @@ import AppLayout from './layouts/AppLayout'
 function App() {
   return (
     <BrowserRouter>
-      <AppLayout>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/subjects/:subjectId" element={<SubjectDetailPage />} />
-        </Routes>
-      </AppLayout>
-    </BrowserRouter>
+  <Routes>
+    <Route element={<AppLayout />}>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/subjects/:subjectId" element={<SubjectDetailPage />} />
+    </Route>
+  </Routes>
+</BrowserRouter>
   )
 }
 
