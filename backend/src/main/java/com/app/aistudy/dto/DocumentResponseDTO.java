@@ -12,6 +12,9 @@ public class DocumentResponseDTO {
     private Long fileSize;
     private String contentType;
     private Timestamp createdAt;
+    private String extractedText;
+    private String processingStatus;
+    private Timestamp processedAt;
 
     public DocumentResponseDTO() {
         super();
@@ -79,5 +82,29 @@ public class DocumentResponseDTO {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getExtractedText() {
+        return extractedText;
+    }
+
+    public void setExtractedText(String extractedText) {
+        this.extractedText = extractedText;
+    }
+
+    public String getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(String processingStatus) {
+        this.processingStatus = processingStatus;
+    }
+
+    public Timestamp getProcessedAt() {
+        return processedAt;
+    }
+
+    public void setProcessedAt(Timestamp processedAt) {
+        this.processedAt = processedAt;
     }
 }

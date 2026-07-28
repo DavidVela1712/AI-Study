@@ -35,8 +35,19 @@ public class Document {
     @Column(name = "created_at")
     private Timestamp createdAt;
 
+    @Column(name = "extracted_text", columnDefinition = "TEXT")
+    private String extractedText;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "processing_status")
+    private ProcessingStatus processingStatus;
+
+    @Column(name = "processed_at")
+    private Timestamp processedAt;
+
     public Document() {
         super();
+        this.processingStatus = ProcessingStatus.PENDING;
     }
 
     public Integer getIdDocument() {
@@ -101,5 +112,29 @@ public class Document {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getExtractedText() {
+        return extractedText;
+    }
+
+    public void setExtractedText(String extractedText) {
+        this.extractedText = extractedText;
+    }
+
+    public ProcessingStatus getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(ProcessingStatus processingStatus) {
+        this.processingStatus = processingStatus;
+    }
+
+    public Timestamp getProcessedAt() {
+        return processedAt;
+    }
+
+    public void setProcessedAt(Timestamp processedAt) {
+        this.processedAt = processedAt;
     }
 }

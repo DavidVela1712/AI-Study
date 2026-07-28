@@ -32,6 +32,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     private CurrentUserService currentUserService;
 
+    @Autowired
+    private DocumentProcessingService documentProcessingService;
+
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
@@ -95,7 +98,11 @@ public class DocumentServiceImpl implements DocumentService {
             document.setContentType(file.getContentType());
             document.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-            return convertToResponseDTO(documentRepository.save(document));
+            Document savedDocument = documentRepository.save(document);
+            
+            documentProcessingService.processDocument(savedDocument);
+            
+            return convertToResponseDTO(documentRepository.save(savedDocument));
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar el archivo: " + e.getMessage());
         }
@@ -146,6 +153,9 @@ public class DocumentServiceImpl implements DocumentService {
         responseDTO.setFileSize(document.getFileSize());
         responseDTO.setContentType(document.getContentType());
         responseDTO.setCreatedAt(document.getCreatedAt());
+        responseDTO.setExtractedText(document.getExtractedText());
+        responseDTO.setProcessingStatus(document.getProcessingStatus() != null ? document.getProcessingStatus().toString() : null);
+        responseDTO.setProcessedAt(document.getProcessedAt());
         return responseDTO;
     }
 }

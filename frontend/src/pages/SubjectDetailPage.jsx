@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import DocumentList from '../components/DocumentList'
 import DocumentUpload from '../components/DocumentUpload'
 import {
   deleteDocument,
@@ -67,15 +66,44 @@ function SubjectDetailPage() {
     }
   }
 
+  function getProcessingStatus(status) {
+    switch (status) {
+      case 'COMPLETED':
+        return { label: 'Procesado', className: 'status-completed', icon: '✓' }
+      case 'PROCESSING':
+        return { label: 'Procesando', className: 'status-processing', icon: '⏳' }
+      case 'FAILED':
+        return { label: 'Error', className: 'status-failed', icon: '✕' }
+      default:
+        return { label: 'Pendiente', className: 'status-pending', icon: '○' }
+    }
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+  }
+
+  function formatDate(timestamp) {
+    return new Date(timestamp).toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  }
+
   if (loading) {
-    return <p className="loading">Cargando...</p>
+    return <div className="loading-state">Cargando asignatura...</div>
   }
 
   if (error && !subject) {
     return (
       <div className="subject-detail">
-        <p className="error">{error}</p>
-        <Link to="/">Volver al inicio</Link>
+        <div className="alert alert-error">{error}</div>
+        <Link to="/" className="back-link">← Volver a mis asignaturas</Link>
       </div>
     )
   }
@@ -86,16 +114,73 @@ function SubjectDetailPage() {
         <Link to="/" className="back-link">
           ← Volver a mis asignaturas
         </Link>
-        <h1>{subject?.name}</h1>
-        {subject?.description && <p className="subject-detail__description">{subject.description}</p>}
+        <div className="subject-detail__info">
+          <h1>{subject?.name}</h1>
+          {subject?.description && (
+            <p className="subject-detail__description">{subject.description}</p>
+          )}
+        </div>
       </div>
 
-      {error && <p className="error">{error}</p>}
+      {error && <div className="alert alert-error">{error}</div>}
+
+      <div className="subject-detail__actions">
+        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
+          📝 Generar resumen
+        </button>
+        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
+          ❓ Generar test
+        </button>
+        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
+          🃏 Generar flashcards
+        </button>
+        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
+          💬 Abrir chat
+        </button>
+      </div>
 
       <div className="subject-detail__documents">
-        <h2>Documentos</h2>
-        <DocumentUpload subjectId={subjectId} onUpload={handleUpload} />
-        <DocumentList documents={documents} onDelete={handleDelete} />
+        <div className="section-header">
+          <h2>Documentos ({documents.length})</h2>
+          <DocumentUpload subjectId={subjectId} onUpload={handleUpload} />
+        </div>
+
+        {documents.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-state__icon">📄</div>
+            <h2>No hay documentos</h2>
+            <p>Sube tus apuntes en formato PDF para empezar a estudiar</p>
+          </div>
+        ) : (
+          <div className="documents-list">
+            {documents.map((document) => {
+              const status = getProcessingStatus(document.processingStatus)
+              return (
+                <div key={document.idDocument} className="document-card">
+                  <div className="document-card__icon">📄</div>
+                  <div className="document-card__content">
+                    <h4 className="document-card__name">{document.originalFileName}</h4>
+                    <div className="document-card__meta">
+                      <span>{formatFileSize(document.fileSize)}</span>
+                      <span>•</span>
+                      <span>{formatDate(document.createdAt)}</span>
+                    </div>
+                    <div className={`document-card__status ${status.className}`}>
+                      <span className="status-icon">{status.icon}</span>
+                      <span>{status.label}</span>
+                    </div>
+                  </div>
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => handleDelete(document)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

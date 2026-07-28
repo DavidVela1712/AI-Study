@@ -1,17 +1,17 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import SubjectDetailPage from './pages/SubjectDetailPage'
-import MainLayout from './layouts/MainLayout'
+import AppLayout from './layouts/AppLayout'
 
 function App() {
   return (
     <BrowserRouter>
-      <MainLayout>
+      <AppLayout>
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/subjects/:subjectId" element={<SubjectDetailPage />} />
         </Routes>
-      </MainLayout>
+      </AppLayout>
     </BrowserRouter>
   )
 }

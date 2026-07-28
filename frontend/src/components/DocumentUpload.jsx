@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './Documents.css'
 
 function DocumentUpload({ subjectId, onUpload }) {
   const [uploading, setUploading] = useState(false)
@@ -18,19 +17,16 @@ function DocumentUpload({ subjectId, onUpload }) {
   }
 
   return (
-    <div className="document-upload">
-      <label htmlFor={`file-upload-${subjectId}`} className="document-upload__label">
-        {uploading ? 'Subiendo...' : 'Subir documento'}
-      </label>
+    <label className="btn btn-primary">
+      {uploading ? 'Subiendo...' : '📤 Subir documento'}
       <input
-        id={`file-upload-${subjectId}`}
         type="file"
         onChange={handleFileChange}
         disabled={uploading}
         accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-        className="document-upload__input"
+        style={{ display: 'none' }}
       />
-    </div>
+    </label>
   )
 }
 
