@@ -96,9 +96,20 @@
   border-radius: 8px;
 }
 
+.subject-card__content {
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+}
+
+.subject-card__content:hover h3 {
+  color: var(--accent-bg);
+}
+
 .subject-card__content h3 {
   margin: 0 0 0.5rem;
   font-size: 1.125rem;
+  transition: color 0.2s;
 }
 
 .subject-card__content p {

@@ -1,0 +1,93 @@
+.document-upload {
+  margin-bottom: 2rem;
+}
+
+.document-upload__label {
+  display: inline-block;
+  padding: 0.625rem 1.25rem;
+  background: var(--accent-bg);
+  color: var(--text-h);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.document-upload__label:hover {
+  background: var(--accent-bg);
+  filter: brightness(1.1);
+}
+
+.document-upload__input {
+  display: none;
+}
+
+.document-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.document-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+
+.document-card__content {
+  flex: 1;
+}
+
+.document-card__content h4 {
+  margin: 0 0 0.375rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.document-card__meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.document-card__delete {
+  font: inherit;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid rgba(180, 35, 24, 0.4);
+  border-radius: 6px;
+  background: rgba(180, 35, 24, 0.1);
+  color: var(--text-h);
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.document-card__delete:hover {
+  background: rgba(180, 35, 24, 0.2);
+}
+
+.documents-empty {
+  padding: 1rem 0;
+  color: var(--text);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .document-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .document-card__delete {
+    width: 100%;
+  }
+}

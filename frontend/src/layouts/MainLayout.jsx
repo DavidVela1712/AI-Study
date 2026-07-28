@@ -10,7 +10,7 @@ function MainLayout({ children }) {
       <main className="main-layout__content">{children}</main>
 
       <footer className="main-layout__footer">
-        <p>AI Study — Productividad académica</p>
+        <p>AI Study — Proyecto educativo y proyecto de portfolio personal</p>
       </footer>
     </div>
   )

@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import './Subjects.css'
 
 function SubjectList({ subjects, onEdit, onDelete }) {
@@ -9,10 +10,10 @@ function SubjectList({ subjects, onEdit, onDelete }) {
     <ul className="subject-list">
       {subjects.map((subject) => (
         <li key={subject.idSubject} className="subject-card">
-          <div className="subject-card__content">
+          <Link to={`/subjects/${subject.idSubject}`} className="subject-card__content">
             <h3>{subject.name}</h3>
             {subject.description && <p>{subject.description}</p>}
-          </div>
+          </Link>
 
           <div className="subject-card__actions">
             <button type="button" onClick={() => onEdit(subject)}>
