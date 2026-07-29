@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import DocumentUpload from '../components/DocumentUpload'
+import SummaryModal from '../components/SummaryModal'
 import {
   deleteDocument,
   getDocumentsBySubject,
   uploadDocument,
 } from '../services/documentService'
 import { getSubject } from '../services/subjectService'
+import { generateSummary, getSummaryByDocument } from '../services/summaryService'
 import './SubjectDetailPage.css'
 
 function SubjectDetailPage() {
@@ -15,6 +17,12 @@ function SubjectDetailPage() {
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [summaryModal, setSummaryModal] = useState({
+    isOpen: false,
+    documentId: null,
+    summary: null,
+    loading: false,
+  })
 
   const loadSubject = useCallback(async () => {
     try {
@@ -64,6 +72,60 @@ function SubjectDetailPage() {
     } catch {
       setError('No se pudo eliminar el documento.')
     }
+  }
+
+  async function handleOpenSummaryModal(document) {
+    if (document.processingStatus !== 'COMPLETED') {
+      setError('El documento debe estar procesado para generar un resumen')
+      return
+    }
+
+    setSummaryModal({
+      isOpen: true,
+      documentId: document.idDocument,
+      summary: null,
+      loading: true,
+    })
+
+    try {
+      const existingSummary = await getSummaryByDocument(document.idDocument)
+      setSummaryModal(prev => ({
+        ...prev,
+        summary: existingSummary,
+        loading: false,
+      }))
+    } catch {
+      setSummaryModal(prev => ({
+        ...prev,
+        summary: null,
+        loading: false,
+      }))
+    }
+  }
+
+  async function handleGenerateSummary() {
+    setSummaryModal(prev => ({ ...prev, loading: true }))
+
+    try {
+      const summary = await generateSummary(summaryModal.documentId)
+      setSummaryModal(prev => ({
+        ...prev,
+        summary,
+        loading: false,
+      }))
+    } catch {
+      setError('No se pudo generar el resumen')
+      setSummaryModal(prev => ({ ...prev, loading: false }))
+    }
+  }
+
+  function handleCloseSummaryModal() {
+    setSummaryModal({
+      isOpen: false,
+      documentId: null,
+      summary: null,
+      loading: false,
+    })
   }
 
   function getProcessingStatus(status) {
@@ -125,7 +187,17 @@ function SubjectDetailPage() {
       {error && <div className="alert alert-error">{error}</div>}
 
       <div className="subject-detail__actions">
-        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
+        <button 
+          className="btn btn-primary" 
+          onClick={() => {
+            const processedDoc = documents.find(d => d.processingStatus === 'COMPLETED')
+            if (processedDoc) {
+              handleOpenSummaryModal(processedDoc)
+            } else {
+              setError('Necesitas subir y procesar un documento primero')
+            }
+          }}
+        >
           📝 Generar resumen
         </button>
         <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
@@ -182,6 +254,14 @@ function SubjectDetailPage() {
           </div>
         )}
       </div>
+
+      <SummaryModal
+        isOpen={summaryModal.isOpen}
+        onClose={handleCloseSummaryModal}
+        summary={summaryModal.summary}
+        loading={summaryModal.loading}
+        onGenerate={handleGenerateSummary}
+      />
     </div>
   )
 }

@@ -29,7 +29,9 @@ public class DocumentProcessingServiceImpl implements DocumentProcessingService 
             document.setProcessingStatus(ProcessingStatus.PROCESSING);
             
             String extractedText = extractTextFromPdf(document.getFilePath());
-            
+
+            extractedText = extractedText.replace("\u0000", "");
+
             document.setExtractedText(extractedText);
             document.setProcessingStatus(ProcessingStatus.COMPLETED);
             document.setProcessedAt(new Timestamp(System.currentTimeMillis()));
