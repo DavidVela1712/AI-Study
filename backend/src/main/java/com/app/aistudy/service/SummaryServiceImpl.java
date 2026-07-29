@@ -37,10 +37,38 @@ public class SummaryServiceImpl implements SummaryService {
 
         Optional<Summary> existingSummary = summaryRepository.findByDocument(document);
         if (existingSummary.isPresent()) {
-            return convertToResponseDTO(existingSummary.get());
+            throw new RuntimeException("Ya existe un resumen para este documento. Usa la función de regenerar para actualizarlo.");
         }
 
         String summaryContent = aiService.generateSummary(document.getExtractedText());
+
+        Summary summary = new Summary();
+        summary.setDocument(document);
+        summary.setContent(summaryContent);
+        summary.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+
+        Summary savedSummary = summaryRepository.save(summary);
+        return convertToResponseDTO(savedSummary);
+    }
+
+    @Override
+    public SummaryResponseDTO regenerateSummary(Integer documentId) {
+        Document document = findDocumentForCurrentUser(documentId);
+
+        if (document.getExtractedText() == null || document.getExtractedText().trim().isEmpty()) {
+            throw new RuntimeException("El documento no tiene texto extraído para generar un resumen");
+        }
+
+        String summaryContent = aiService.generateSummary(document.getExtractedText());
+
+        Optional<Summary> existingSummary = summaryRepository.findByDocument(document);
+        if (existingSummary.isPresent()) {
+            Summary summary = existingSummary.get();
+            summary.setContent(summaryContent);
+            summary.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            Summary savedSummary = summaryRepository.save(summary);
+            return convertToResponseDTO(savedSummary);
+        }
 
         Summary summary = new Summary();
         summary.setDocument(document);

@@ -5,6 +5,11 @@ export async function generateSummary(documentId) {
   return response.data
 }
 
+export async function regenerateSummary(documentId) {
+  const response = await axiosClient.post('/summaries/regenerate', { documentId })
+  return response.data
+}
+
 export async function getSummaryByDocument(documentId) {
   const response = await axiosClient.get(`/summaries/document/${documentId}`)
   return response.data

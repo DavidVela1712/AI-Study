@@ -6,6 +6,8 @@ public interface SummaryService {
 
     SummaryResponseDTO generateSummary(Integer documentId);
 
+    SummaryResponseDTO regenerateSummary(Integer documentId);
+
     SummaryResponseDTO findByDocument(Integer documentId);
 
     void delete(Integer id);
