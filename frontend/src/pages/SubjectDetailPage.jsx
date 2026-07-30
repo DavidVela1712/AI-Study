@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import DocumentUpload from '../components/DocumentUpload'
-import SummariesModal from '../components/SummariesModal'
+import SummariesModal from "../components/SummariesModal";
 import {
   deleteDocument,
   getDocumentsBySubject,
@@ -16,7 +16,6 @@ function SubjectDetailPage() {
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [summariesModalOpen, setSummariesModalOpen] = useState(false)
 
   const loadSubject = useCallback(async () => {
     try {
@@ -126,23 +125,6 @@ function SubjectDetailPage() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="subject-detail__actions">
-        <button 
-          className="btn btn-primary" 
-          onClick={() => setSummariesModalOpen(true)}
-        >
-          📝 Resúmenes
-        </button>
-        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
-          ❓ Generar test
-        </button>
-        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
-          🃏 Generar flashcards
-        </button>
-        <button className="btn btn-secondary btn-disabled" disabled title="Próximamente">
-          💬 Abrir chat
-        </button>
-      </div>
 
       <div className="subject-detail__documents">
         <div className="section-header">
@@ -188,11 +170,13 @@ function SubjectDetailPage() {
         )}
       </div>
 
-      <SummariesModal
-        isOpen={summariesModalOpen}
-        onClose={() => setSummariesModalOpen(false)}
-        documents={documents}
-      />
+{/*
+<SummariesModal
+    isOpen={summariesModalOpen}
+    onClose={() => setSummariesModalOpen(false)}
+    documents={documents}
+/>
+*/}
     </div>
   )
 }

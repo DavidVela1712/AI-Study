@@ -38,19 +38,69 @@ public class MockAIService implements AIService {
 
     @Override
     public String generateTest(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return "No hay contenido para generar un test.";
+        }
+
         return """
-            # Test Generado (SIMULACIÓN)
-            
-            Esta funcionalidad está preparada para futura implementación con IA.
+            Pregunta: ¿Cuál es el propósito principal de este documento?
+            A) Explicar conceptos básicos
+            B) Presentar resultados de investigación
+            C) Describir un proceso técnico
+            D) Todas las anteriores
+            Correcta: D
+
+            Pregunta: ¿Qué elementos clave se mencionan en el texto?
+            A) Solo conceptos teóricos
+            B) Ejemplos prácticos y teoría
+            C) Solo ejemplos
+            D) Referencias bibliográficas
+            Correcta: B
+
+            Pregunta: ¿Cuál es la conclusión principal?
+            A) El documento es incompleto
+            B) Se necesitan más investigaciones
+            C) Los resultados son concluyentes
+            D) No hay conclusión clara
+            Correcta: C
+
+            Pregunta: ¿Qué metodología se utiliza?
+            A) Cualitativa
+            B) Cuantitativa
+            C) Mixta
+            D) No se especifica
+            Correcta: C
+
+            Pregunta: ¿Cuál es el público objetivo?
+            A) Estudiantes universitarios
+            B) Profesionales del sector
+            C) Público general
+            D) Investigadores
+            Correcta: A
             """;
     }
 
     @Override
     public String generateFlashcards(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return "No hay contenido para generar flashcards.";
+        }
+
         return """
-            # Flashcards Generadas (SIMULACIÓN)
-            
-            Esta funcionalidad está preparada para futura implementación con IA.
+            Pregunta: ¿Cuál es el tema principal del documento?
+            Respuesta: El documento trata sobre conceptos fundamentales y aplicaciones prácticas en el campo de estudio.
+
+            Pregunta: ¿Qué conceptos clave se presentan?
+            Respuesta: Se presentan conceptos básicos, metodologías y ejemplos prácticos.
+
+            Pregunta: ¿Cuál es la importancia del tema?
+            Respuesta: Es fundamental para comprender los fundamentos y aplicarlos en situaciones reales.
+
+            Pregunta: ¿Qué ejemplos se mencionan?
+            Respuesta: Se mencionan casos de uso prácticos y aplicaciones en diferentes contextos.
+
+            Pregunta: ¿Cuál es la conclusión principal?
+            Respuesta: La comprensión de estos conceptos es esencial para el avance en el campo.
             """;
     }
 
