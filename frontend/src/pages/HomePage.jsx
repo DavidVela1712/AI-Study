@@ -1,6 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { BookOpen, Layers, Zap, Sparkles, Clock3 } from 'lucide-react'
 import SubjectModal from '../components/SubjectModal'
+import StatCard from '../components/StatCard'
+import SectionHeader from '../components/SectionHeader'
+import DocumentCard from '../components/DocumentCard'
 import {
   createSubject,
   deleteSubject,
@@ -8,35 +12,84 @@ import {
   updateSubject,
 } from '../services/subjectService'
 import { getDocumentsBySubject } from '../services/documentService'
+import { getSummaryByDocument } from '../services/summaryService'
+import { getFlashcardsByDocument } from '../services/flashcardService'
+import { getQuizByDocument } from '../services/quizService'
 import './HomePage.css'
 
 function HomePage() {
   const [subjects, setSubjects] = useState([])
-  const [subjectsDocCounts, setSubjectsDocCounts] = useState({})
+  const [documentsBySubject, setDocumentsBySubject] = useState({})
+  const [recentDocuments, setRecentDocuments] = useState([])
+  const [stats, setStats] = useState({
+    subjects: 0,
+    documents: 0,
+    summaries: 0,
+    flashcards: 0,
+    tests: 0,
+  })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingSubject, setEditingSubject] = useState(null)
+  const [search, setSearch] = useState('')
+  const navigate = useNavigate()
 
   const loadSubjects = useCallback(async () => {
     setError(null)
+    setLoading(true)
 
     try {
-      const data = await getSubjects()
-      setSubjects(data)
-      
-      const counts = {}
+      const subjectsData = await getSubjects()
+      setSubjects(subjectsData)
+
+      const documentsMap = {}
+      const allDocuments = []
+
       await Promise.all(
-        data.map(async (subject) => {
+        subjectsData.map(async (subject) => {
           try {
             const docs = await getDocumentsBySubject(subject.idSubject)
-            counts[subject.idSubject] = docs.length
+            documentsMap[subject.idSubject] = docs
+            allDocuments.push(
+              ...docs.map((doc) => ({ ...doc, subjectName: subject.name }))
+            )
           } catch {
-            counts[subject.idSubject] = 0
+            documentsMap[subject.idSubject] = []
           }
         })
       )
-      setSubjectsDocCounts(counts)
+
+      const recent = allDocuments
+        .slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+
+      setDocumentsBySubject(documentsMap)
+      setRecentDocuments(recent)
+
+      const results = await Promise.all(
+        allDocuments.map(async (document) => {
+          const [summaryResult, flashcardsResult, quizResult] = await Promise.allSettled([
+            getSummaryByDocument(document.idDocument),
+            getFlashcardsByDocument(document.idDocument),
+            getQuizByDocument(document.idDocument),
+          ])
+          return {
+            summary: summaryResult.status === 'fulfilled',
+            flashcards: flashcardsResult.status === 'fulfilled',
+            quiz: quizResult.status === 'fulfilled',
+          }
+        })
+      )
+
+      setStats({
+        subjects: subjectsData.length,
+        documents: allDocuments.length,
+        summaries: results.filter((item) => item.summary).length,
+        flashcards: results.filter((item) => item.flashcards).length,
+        tests: results.filter((item) => item.quiz).length,
+      })
     } catch {
       setError('No se pudieron cargar las asignaturas.')
     } finally {
@@ -45,6 +98,7 @@ function HomePage() {
   }, [])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSubjects()
   }, [loadSubjects])
 
@@ -99,13 +153,11 @@ function HomePage() {
     setEditingSubject(null)
   }
 
-  function formatDate(timestamp) {
-    return new Date(timestamp).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
+  const filteredSubjects = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) return subjects
+    return subjects.filter((subject) => subject.name.toLowerCase().includes(query))
+  }, [search, subjects])
 
   if (loading) {
     return <div className="loading-state">Cargando asignaturas...</div>
@@ -113,92 +165,123 @@ function HomePage() {
 
   return (
     <div className="home-page">
-      <div className="home-page__header">
-        <div className="home-page__title">
-          <h1>Mis Asignaturas</h1>
-          <p>Organiza tus estudios por materia</p>
+      <div className="home-page__hero card">
+        <div>
+          <p className="home-page__welcome">¡Buenos días, David! 👋</p>
+          <h1 className="home-page__headline">Tu centro de estudio inteligente.</h1>
+          <p className="home-page__description">
+            Revisa tus asignaturas, abre documentos y continúa donde lo dejaste.
+          </p>
         </div>
-        <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-          <span className="btn-icon">+</span>
-          Nueva asignatura
-        </button>
+
+        <div className="home-page__hero-actions">
+          <button className="btn btn-primary" onClick={() => handleOpenModal()}>
+            <Sparkles size={18} />
+            Nueva asignatura
+          </button>
+        </div>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      {subjects.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state__icon">📚</div>
-          <h2>No tienes asignaturas aún</h2>
-          <p>Crea tu primera asignatura para empezar a organizar tus apuntes</p>
-          <button className="btn btn-primary" onClick={() => handleOpenModal()}>
-            Crear primera asignatura
-          </button>
-        </div>
-      ) : (
-        <div className="subjects-grid">
-          {subjects.map((subject) => (
-            <Link
-              key={subject.idSubject}
-              to={`/subjects/${subject.idSubject}`}
-              className="subject-card"
-            >
-              <div className="subject-card__header">
-                <h3 className="subject-card__title">{subject.name}</h3>
-                <button
-                  className="subject-card__menu"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                  }}
-                >
-                  ⋯
-                </button>
-              </div>
+      <div className="home-page__stats grid grid-3">
+        <StatCard icon={Layers} label="Asignaturas" value={stats.subjects} />
+        <StatCard icon={BookOpen} label="Documentos" value={stats.documents} />
+        <StatCard icon={Zap} label="Resúmenes" value={stats.summaries} />
+        <StatCard icon={Sparkles} label="Flashcards" value={stats.flashcards} />
+        <StatCard icon={Clock3} label="Tests" value={stats.tests} />
+      </div>
 
-              {subject.description && (
-                <p className="subject-card__description">{subject.description}</p>
-              )}
+      <div className="home-page__body grid grid-2">
+        <section className="card home-page__section home-page__documents">
+          <SectionHeader
+            title="Documentos recientes"
+            description="Accede directamente a tus apuntes más recientes y continúa estudiando."
+          />
 
-              <div className="subject-card__footer">
-                <div className="subject-card__meta">
-                  <span className="subject-card__documents">
-                    📄 {subjectsDocCounts[subject.idSubject] || 0} documentos
-                  </span>
-                  <span className="subject-card__date">
-                    {formatDate(subject.createdAt)}
-                  </span>
-                </div>
-              </div>
+          {recentDocuments.length === 0 ? (
+            <p className="home-page__empty-text">Aún no hay documentos disponibles.</p>
+          ) : (
+            <div className="recent-documents">
+              {recentDocuments.map((document) => (
+                <DocumentCard
+                  key={document.idDocument}
+                  document={document}
+                  onSelect={() => navigate(`/documents/${document.idDocument}`)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
 
-              <div className="subject-card__actions">
-                <button
-                  className="btn btn-sm btn-secondary"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleOpenModal(subject)
-                  }}
-                >
-                  Editar
-                </button>
-                <button
-                  className="btn btn-sm btn-danger"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    e.stopPropagation()
-                    handleDelete(subject)
-                  }}
-                >
-                  Eliminar
-                </button>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
+        <section className="card home-page__section home-page__subjects">
+          <SectionHeader
+            title="Tus asignaturas"
+            description="Organiza tu estudio por materias y abre el contenido asociado."
+            action={
+              <button className="btn btn-secondary" onClick={() => handleOpenModal()}>
+                Crear asignatura
+              </button>
+            }
+          />
+
+          <div className="home-page__subject-search input-group">
+            <input
+              type="search"
+              placeholder="Buscar asignaturas"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="Buscar asignaturas"
+            />
+          </div>
+
+          <div className="subjects-list">
+            {filteredSubjects.length === 0 ? (
+              <p className="home-page__empty-text">No se encontraron asignaturas.</p>
+            ) : (
+              filteredSubjects.map((subject) => {
+                const docs = documentsBySubject[subject.idSubject] || []
+                return (
+                  <div key={subject.idSubject} className="subject-card-wrapper">
+                    <Link
+                      to={`/subjects/${subject.idSubject}`}
+                      className="subject-card"
+                    >
+                      <div className="subject-card__header">
+                        <div>
+                          <h3 className="subject-card__title">{subject.name}</h3>
+                          <p className="subject-card__description">
+                            {subject.description || 'Sin descripción'}
+                          </p>
+                        </div>
+                        <span className="badge">{docs.length} documentos</span>
+                      </div>
+                      <div className="subject-card__progress">
+                        <div className="subject-card__progress-bar" style={{ width: `${Math.min((docs.length / 8) * 100, 100)}%` }} />
+                      </div>
+                      <p className="subject-card__meta">Última actualización: {docs.length ? new Date(docs[0].createdAt).toLocaleDateString('es-ES') : 'Sin documentos'}</p>
+                    </Link>
+                    <button
+                      className="btn btn-ghost subject-card__delete"
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        handleDelete(subject)
+                      }}
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                )
+              })
+            )}
+          </div>
+        </section>
+      </div>
 
       <SubjectModal
+        key={editingSubject?.idSubject ?? 'new'}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={editingSubject ? handleUpdate : handleCreate}

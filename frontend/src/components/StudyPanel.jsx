@@ -1,11 +1,24 @@
-import { useCallback, useEffect, useState } from 'react'
+﻿import { useCallback, useEffect, useState } from 'react'
 import { useToast } from '../context/ToastContext'
-import SummaryModal from './SummaryModal'
+import SummarySection from './SummarySection'
 import FlashcardViewer from './FlashcardViewer'
 import QuizViewer from './QuizViewer'
-import { generateSummary, regenerateSummary, getSummaryByDocument } from '../services/summaryService'
-import { generateFlashcards, regenerateFlashcards, getFlashcardsByDocument } from '../services/flashcardService'
-import { generateQuiz, regenerateQuiz, getQuizByDocument } from '../services/quizService'
+import {
+  generateSummary,
+  regenerateSummary,
+  getSummaryByDocument,
+  deleteSummary,
+} from '../services/summaryService'
+import {
+  generateFlashcards,
+  regenerateFlashcards,
+  getFlashcardsByDocument,
+} from '../services/flashcardService'
+import {
+  generateQuiz,
+  regenerateQuiz,
+  getQuizByDocument,
+} from '../services/quizService'
 import './StudyPanel.css'
 
 function StudyPanel({ document }) {
@@ -13,140 +26,135 @@ function StudyPanel({ document }) {
   const [summary, setSummary] = useState(null)
   const [flashcards, setFlashcards] = useState(null)
   const [quiz, setQuiz] = useState(null)
-  const [loading, setLoading] = useState({
-    summary: false,
-    flashcards: false,
-    quiz: false
-  })
+  const [loading, setLoading] = useState({ summary: false, flashcards: false, quiz: false })
   const { addToast } = useToast()
 
   const loadSummary = useCallback(async () => {
     if (!document) return
-    setLoading(prev => ({ ...prev, summary: true }))
+    setLoading((prev) => ({ ...prev, summary: true }))
     try {
       const data = await getSummaryByDocument(document.idDocument)
       setSummary(data)
     } catch {
-      setSummary(null)
+      try {
+        const generated = await generateSummary(document.idDocument)
+        setSummary(generated)
+      } catch {
+        addToast('No se pudo generar el resumen automáticamente.', 'error')
+        setSummary(null)
+      }
     } finally {
-      setLoading(prev => ({ ...prev, summary: false }))
+      setLoading((prev) => ({ ...prev, summary: false }))
     }
-  }, [document])
+  }, [document, addToast])
 
   const loadFlashcards = useCallback(async () => {
     if (!document) return
-    setLoading(prev => ({ ...prev, flashcards: true }))
+    setLoading((prev) => ({ ...prev, flashcards: true }))
     try {
       const data = await getFlashcardsByDocument(document.idDocument)
       setFlashcards(data)
     } catch {
-      setFlashcards(null)
+      try {
+        const generated = await generateFlashcards(document.idDocument)
+        setFlashcards(generated)
+      } catch {
+        addToast('No se pudieron generar las flashcards automáticamente.', 'error')
+        setFlashcards(null)
+      }
     } finally {
-      setLoading(prev => ({ ...prev, flashcards: false }))
+      setLoading((prev) => ({ ...prev, flashcards: false }))
     }
-  }, [document])
+  }, [document, addToast])
 
   const loadQuiz = useCallback(async () => {
     if (!document) return
-    setLoading(prev => ({ ...prev, quiz: true }))
+    setLoading((prev) => ({ ...prev, quiz: true }))
     try {
       const data = await getQuizByDocument(document.idDocument)
       setQuiz(data)
     } catch {
-      setQuiz(null)
+      try {
+        const generated = await generateQuiz(document.idDocument)
+        setQuiz(generated)
+      } catch {
+        addToast('No se pudo generar el test automáticamente.', 'error')
+        setQuiz(null)
+      }
     } finally {
-      setLoading(prev => ({ ...prev, quiz: false }))
+      setLoading((prev) => ({ ...prev, quiz: false }))
     }
-  }, [document])
+  }, [document, addToast])
 
   useEffect(() => {
     if (!document) return
 
-    void Promise.all([
-      loadSummary(),
-      loadFlashcards(),
-      loadQuiz()
-    ])
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadSummary()
+    loadFlashcards()
+    loadQuiz()
   }, [document, loadSummary, loadFlashcards, loadQuiz])
 
-  async function handleGenerateSummary() {
-    setLoading(prev => ({ ...prev, summary: true }))
-    try {
-      const data = await generateSummary(document.idDocument)
-      setSummary(data)
-      addToast('Resumen generado correctamente', 'success')
-    } catch {
-      addToast('Error al generar el resumen', 'error')
-    } finally {
-      setLoading(prev => ({ ...prev, summary: false }))
-    }
-  }
 
   async function handleRegenerateSummary() {
-    const confirmed = window.confirm('¿Deseas regenerar el resumen? Esto reemplazará el existente.')
-    if (confirmed) {
-      setLoading(prev => ({ ...prev, summary: true }))
-      try {
-        const data = await regenerateSummary(document.idDocument)
-        setSummary(data)
-        addToast('Resumen regenerado correctamente', 'success')
-      } catch {
-        addToast('Error al regenerar el resumen', 'error')
-      } finally {
-        setLoading(prev => ({ ...prev, summary: false }))
-      }
+    const confirmed = window.confirm('Ya existe un resumen. ¿Deseas reemplazarlo?')
+    if (!confirmed) return
+
+    setLoading((prev) => ({ ...prev, summary: true }))
+    try {
+      const data = await regenerateSummary(document.idDocument)
+      setSummary(data)
+      addToast('Resumen regenerado correctamente', 'success')
+    } catch {
+      addToast('Error al regenerar el resumen.', 'error')
+    } finally {
+      setLoading((prev) => ({ ...prev, summary: false }))
     }
   }
 
-  async function handleGenerateFlashcards() {
-    setLoading(prev => ({ ...prev, flashcards: true }))
+  async function handleDeleteSummary() {
+    if (!summary) return
+    const confirmed = window.confirm('¿Deseas eliminar el resumen?')
+    if (!confirmed) return
+
     try {
-      const data = await generateFlashcards(document.idDocument)
-      setFlashcards(data)
-      addToast('Flashcards generadas correctamente', 'success')
+      await deleteSummary(summary.idSummary)
+      setSummary(null)
+      addToast('Resumen eliminado correctamente', 'success')
     } catch {
-      addToast('Error al generar las flashcards', 'error')
-    } finally {
-      setLoading(prev => ({ ...prev, flashcards: false }))
+      addToast('Error al eliminar el resumen.', 'error')
     }
   }
 
   async function handleRegenerateFlashcards() {
-    setLoading(prev => ({ ...prev, flashcards: true }))
+    const confirmed = window.confirm('¿Deseas regenerar las flashcards? Esto reemplazará las existentes.')
+    if (!confirmed) return
+
+    setLoading((prev) => ({ ...prev, flashcards: true }))
     try {
       const data = await regenerateFlashcards(document.idDocument)
       setFlashcards(data)
       addToast('Flashcards regeneradas correctamente', 'success')
     } catch {
-      addToast('Error al regenerar las flashcards', 'error')
+      addToast('Error al regenerar las flashcards.', 'error')
     } finally {
-      setLoading(prev => ({ ...prev, flashcards: false }))
-    }
-  }
-
-  async function handleGenerateQuiz() {
-    setLoading(prev => ({ ...prev, quiz: true }))
-    try {
-      const data = await generateQuiz(document.idDocument)
-      setQuiz(data)
-      addToast('Test generado correctamente', 'success')
-    } catch {
-      addToast('Error al generar el test', 'error')
-    } finally {
-      setLoading(prev => ({ ...prev, quiz: false }))
+      setLoading((prev) => ({ ...prev, flashcards: false }))
     }
   }
 
   async function handleRegenerateQuiz() {
-    setLoading(prev => ({ ...prev, quiz: true }))
+    const confirmed = window.confirm('¿Deseas regenerar el test? Esto reemplazará el existente.')
+    if (!confirmed) return
+
+    setLoading((prev) => ({ ...prev, quiz: true }))
     try {
       const data = await regenerateQuiz(document.idDocument)
       setQuiz(data)
       addToast('Test regenerado correctamente', 'success')
     } catch {
-      addToast('Error al regenerar el test', 'error')
+      addToast('Error al regenerar el test.', 'error')
     } finally {
-      setLoading(prev => ({ ...prev, quiz: false }))
+      setLoading((prev) => ({ ...prev, quiz: false }))
     }
   }
 
@@ -154,71 +162,58 @@ function StudyPanel({ document }) {
     setActiveTab(tab)
     if (tab === 'summary' && !summary && !loading.summary) {
       loadSummary()
-    } else if (tab === 'flashcards' && !flashcards && !loading.flashcards) {
+    }
+    if (tab === 'flashcards' && !flashcards && !loading.flashcards) {
       loadFlashcards()
-    } else if (tab === 'quiz' && !quiz && !loading.quiz) {
+    }
+    if (tab === 'quiz' && !quiz && !loading.quiz) {
       loadQuiz()
     }
   }
 
   if (!document) {
     return (
-      <div className="study-panel study-panel--empty">
+      <div className="study-panel study-panel--empty card">
         <div className="study-panel__placeholder">
-          <div className="study-panel__icon">📄</div>
-          <h3>Selecciona un documento</h3>
-          <p>Para comenzar a estudiar</p>
+          <p>Selecciona un documento para comenzar a estudiar.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="study-panel">
+    <div className="study-panel card">
       <div className="study-panel__tabs">
         <button
           className={`study-tab ${activeTab === 'summary' ? 'study-tab--active' : ''}`}
           onClick={() => handleTabChange('summary')}
         >
-          📄 Resumen
+          Resumen
         </button>
         <button
           className={`study-tab ${activeTab === 'flashcards' ? 'study-tab--active' : ''}`}
           onClick={() => handleTabChange('flashcards')}
         >
-          🧠 Flashcards
+          Flashcards
         </button>
         <button
           className={`study-tab ${activeTab === 'quiz' ? 'study-tab--active' : ''}`}
           onClick={() => handleTabChange('quiz')}
         >
-          📝 Test
+          Test
         </button>
-        <button
-          className="study-tab study-tab--disabled"
-          disabled
-          title="Próximamente"
-        >
-          💬 Chat IA
+        <button className="study-tab study-tab--disabled" disabled>
+          Chat IA
         </button>
       </div>
 
       <div className="study-panel__content">
         {activeTab === 'summary' && (
-          <SummaryModal
-            isOpen={true}
-            onClose={() => {}}
+          <SummarySection
             summary={summary}
             loading={loading.summary}
-            onGenerate={handleGenerateSummary}
             onRegenerate={handleRegenerateSummary}
-            onDelete={async (summaryId) => {
-              const { deleteSummary } = await import('../services/summaryService')
-              await deleteSummary(summaryId)
-              setSummary(null)
-              addToast('Resumen eliminado correctamente', 'success')
-            }}
-            document={document}
+            onDelete={handleDeleteSummary}
           />
         )}
 
@@ -226,7 +221,7 @@ function StudyPanel({ document }) {
           <FlashcardViewer
             flashcards={flashcards}
             loading={loading.flashcards}
-            onGenerate={handleGenerateFlashcards}
+            onGenerate={loadFlashcards}
             onRegenerate={handleRegenerateFlashcards}
           />
         )}
@@ -235,9 +230,21 @@ function StudyPanel({ document }) {
           <QuizViewer
             quiz={quiz}
             loading={loading.quiz}
-            onGenerate={handleGenerateQuiz}
+            onGenerate={loadQuiz}
             onRegenerate={handleRegenerateQuiz}
           />
+        )}
+
+        {activeTab === 'chat' && (
+          <div className="chat-panel">
+            <div className="chat-panel__empty">
+              <h3>Chat IA</h3>
+              <p>Próximamente podrás chatear con tu documento y recibir respuestas inteligentes.</p>
+              <button className="btn btn-secondary" disabled>
+                Abrir chat
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>

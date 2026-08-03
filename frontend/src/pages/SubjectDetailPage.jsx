@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams, useNavigate } from 'react-router-dom'
+﻿import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, FileText, CheckCircle2, Clock3 } from 'lucide-react'
 import DocumentUpload from '../components/DocumentUpload'
 import DocumentCard from '../components/DocumentCard'
-import {
-  deleteDocument,
-  getDocumentsBySubject,
-  uploadDocument,
-} from '../services/documentService'
+import SectionHeader from '../components/SectionHeader'
+import { deleteDocument, getDocumentsBySubject, uploadDocument } from '../services/documentService'
 import { getSubject } from '../services/subjectService'
 import './SubjectDetailPage.css'
 
@@ -42,6 +40,7 @@ function SubjectDetailPage() {
       await Promise.all([loadSubject(), loadDocuments()])
       setLoading(false)
     }
+
     loadData()
   }, [loadSubject, loadDocuments])
 
@@ -68,34 +67,15 @@ function SubjectDetailPage() {
     }
   }
 
-  function getProcessingStatus(status) {
-    switch (status) {
-      case 'COMPLETED':
-        return { label: 'Procesado', className: 'status-completed', icon: '✓' }
-      case 'PROCESSING':
-        return { label: 'Procesando', className: 'status-processing', icon: '⏳' }
-      case 'FAILED':
-        return { label: 'Error', className: 'status-failed', icon: '✕' }
-      default:
-        return { label: 'Pendiente', className: 'status-pending', icon: '○' }
-    }
-  }
-
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
-  }
-
-  function formatDate(timestamp) {
-    return new Date(timestamp).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    })
-  }
+  const docsCount = documents.length
+  const completedCount = useMemo(
+    () => documents.filter((doc) => doc.processingStatus === 'COMPLETED').length,
+    [documents]
+  )
+  const pendingCount = useMemo(
+    () => documents.filter((doc) => doc.processingStatus === 'PROCESSING').length,
+    [documents]
+  )
 
   if (loading) {
     return <div className="loading-state">Cargando asignatura...</div>
@@ -105,63 +85,90 @@ function SubjectDetailPage() {
     return (
       <div className="subject-detail">
         <div className="alert alert-error">{error}</div>
-        <Link to="/" className="back-link">← Volver a mis asignaturas</Link>
+        <button className="btn btn-secondary" onClick={() => navigate(-1)}>
+          <ArrowLeft size={16} /> Volver
+        </button>
       </div>
     )
   }
 
   return (
     <div className="subject-detail">
-      <div className="subject-detail__header">
-        <Link to="/" className="back-link">
-          ← Volver a mis asignaturas
-        </Link>
-        <div className="subject-detail__info">
-          <h1>{subject?.name}</h1>
-          {subject?.description && (
-            <p className="subject-detail__description">{subject.description}</p>
-          )}
+      <div className="subject-detail__header card">
+        <div className="subject-detail__breadcrumb">
+          <button className="breadcrumb-link" type="button" onClick={() => navigate(-1)}>
+            <ArrowLeft size={16} /> Volver al dashboard
+          </button>
+          <div>
+            <p className="subject-detail__label">Asignatura</p>
+            <h1>{subject?.name}</h1>
+          </div>
+        </div>
+
+        <div className="subject-detail__actions">
+          <DocumentUpload onUpload={handleUpload} />
         </div>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-
-      <div className="subject-detail__documents">
-        <div className="section-header">
-          <h2>Documentos ({documents.length})</h2>
-          <DocumentUpload subjectId={subjectId} onUpload={handleUpload} />
+      <div className="subject-detail__stats grid grid-3">
+        <div className="stat-card">
+          <div className="stat-card__icon">
+            <FileText size={20} />
+          </div>
+          <div>
+            <p className="stat-card__label">Documentos</p>
+            <h3 className="stat-card__value">{docsCount}</h3>
+          </div>
         </div>
-
-        {documents.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state__icon">📄</div>
-            <h2>No hay documentos</h2>
-            <p>Sube tus apuntes en formato PDF para empezar a estudiar</p>
+        <div className="stat-card">
+          <div className="stat-card__icon">
+            <CheckCircle2 size={20} />
           </div>
-        ) : (
-          <div className="documents-list">
-            {documents.map((document) => {
-              return (
-                <div key={document.idDocument} className="document-card-row">
-                  <DocumentCard
-                    document={document}
-                    onSelect={(doc) => navigate(`/documents/${doc.idDocument}`)}
-                  />
-
-                  <button
-                    className="btn btn-sm btn-danger document-card__delete"
-                    onClick={() => handleDelete(document)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              )
-            })}
+          <div>
+            <p className="stat-card__label">Procesados</p>
+            <h3 className="stat-card__value">{completedCount}</h3>
           </div>
-        )}
+        </div>
+        <div className="stat-card">
+          <div className="stat-card__icon">
+            <Clock3 size={20} />
+          </div>
+          <div>
+            <p className="stat-card__label">En progreso</p>
+            <h3 className="stat-card__value">{pendingCount}</h3>
+          </div>
+        </div>
       </div>
 
+      <section className="card subject-detail__documents">
+        <SectionHeader
+          title="Documentos"
+          description="Abre tu documento para acceder al visor y al panel de estudio." 
+        />
+
+        {documents.length === 0 ? (
+          <p className="home-page__empty-text">No hay documentos en esta asignatura.</p>
+        ) : (
+          <div className="documents-grid">
+            {documents.map((document) => (
+              <div key={document.idDocument} className="document-row-card">
+                <DocumentCard
+                  document={document}
+                  onSelect={() => navigate(`/documents/${document.idDocument}`)}
+                />
+                <button
+                  className="btn btn-danger document-row-card__delete"
+                  onClick={() => handleDelete(document)}
+                >
+                  Eliminar
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   )
 }
