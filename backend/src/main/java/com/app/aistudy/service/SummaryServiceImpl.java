@@ -45,7 +45,9 @@ public class SummaryServiceImpl implements SummaryService {
         Summary summary = new Summary();
         summary.setDocument(document);
         summary.setContent(summaryContent);
-        summary.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        summary.setCreatedAt(now);
+        summary.setUpdatedAt(now);
 
         Summary savedSummary = summaryRepository.save(summary);
         return convertToResponseDTO(savedSummary);
@@ -61,21 +63,26 @@ public class SummaryServiceImpl implements SummaryService {
 
         String summaryContent = aiService.generateSummary(document.getExtractedText());
 
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
         Optional<Summary> existingSummary = summaryRepository.findByDocument(document);
+
+        Summary summary;
+
         if (existingSummary.isPresent()) {
-            Summary summary = existingSummary.get();
+            summary = existingSummary.get();
             summary.setContent(summaryContent);
-            summary.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-            Summary savedSummary = summaryRepository.save(summary);
-            return convertToResponseDTO(savedSummary);
+            summary.setUpdatedAt(now);
+        } else {
+            summary = new Summary();
+            summary.setDocument(document);
+            summary.setContent(summaryContent);
+            summary.setCreatedAt(now);
+            summary.setUpdatedAt(now);
         }
 
-        Summary summary = new Summary();
-        summary.setDocument(document);
-        summary.setContent(summaryContent);
-        summary.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-
         Summary savedSummary = summaryRepository.save(summary);
+
         return convertToResponseDTO(savedSummary);
     }
 

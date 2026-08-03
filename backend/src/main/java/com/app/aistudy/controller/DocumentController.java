@@ -7,6 +7,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.util.List;
 
@@ -25,6 +28,17 @@ public class DocumentController {
     @GetMapping("/{id}")
     public ResponseEntity<DocumentResponseDTO> getDocumentById(@PathVariable Integer id) {
         return ResponseEntity.ok(documentService.findById(id));
+    }
+
+    @GetMapping("/{id}/file")
+    public ResponseEntity<Resource> getDocumentFile(@PathVariable Integer id) {
+
+        Resource resource = documentService.getFile(id);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                .body(resource);
     }
 
     @PostMapping("/upload")

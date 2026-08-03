@@ -9,8 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +20,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.net.MalformedURLException;
 
 @Service
 public class DocumentServiceImpl implements DocumentService {
@@ -130,6 +132,25 @@ public class DocumentServiceImpl implements DocumentService {
         }
 
         documentRepository.delete(document);
+    }
+
+    @Override
+    public Resource getFile(Integer id) {
+
+        Document document = documentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Documento no encontrado"));
+
+        // Comprobación de permisos
+        Subject subject = document.getSubject();
+        if (!subject.getUser().getIdUser().equals(currentUserService.getCurrentUser().getIdUser())) {
+            throw new RuntimeException("No tienes permiso para acceder a este documento");
+        }
+
+        try {
+            return new UrlResource(Paths.get(document.getFilePath()).toUri());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("No se pudo cargar el archivo");
+        }
     }
 
     private Subject findSubjectForCurrentUser(Integer subjectId) {
