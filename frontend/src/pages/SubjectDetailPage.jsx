@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useNavigate } from 'react-router-dom'
 import DocumentUpload from '../components/DocumentUpload'
-import SummariesModal from "../components/SummariesModal";
+import DocumentCard from '../components/DocumentCard'
 import {
   deleteDocument,
   getDocumentsBySubject,
@@ -12,6 +12,7 @@ import './SubjectDetailPage.css'
 
 function SubjectDetailPage() {
   const { subjectId } = useParams()
+  const navigate = useNavigate()
   const [subject, setSubject] = useState(null)
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(true)
@@ -141,24 +142,15 @@ function SubjectDetailPage() {
         ) : (
           <div className="documents-list">
             {documents.map((document) => {
-              const status = getProcessingStatus(document.processingStatus)
               return (
-                <div key={document.idDocument} className="document-card">
-                  <div className="document-card__icon">📄</div>
-                  <div className="document-card__content">
-                    <h4 className="document-card__name">{document.originalFileName}</h4>
-                    <div className="document-card__meta">
-                      <span>{formatFileSize(document.fileSize)}</span>
-                      <span>•</span>
-                      <span>{formatDate(document.createdAt)}</span>
-                    </div>
-                    <div className={`document-card__status ${status.className}`}>
-                      <span className="status-icon">{status.icon}</span>
-                      <span>{status.label}</span>
-                    </div>
-                  </div>
+                <div key={document.idDocument} className="document-card-row">
+                  <DocumentCard
+                    document={document}
+                    onSelect={(doc) => navigate(`/documents/${doc.idDocument}`)}
+                  />
+
                   <button
-                    className="btn btn-sm btn-danger"
+                    className="btn btn-sm btn-danger document-card__delete"
                     onClick={() => handleDelete(document)}
                   >
                     Eliminar
@@ -170,13 +162,6 @@ function SubjectDetailPage() {
         )}
       </div>
 
-{/*
-<SummariesModal
-    isOpen={summariesModalOpen}
-    onClose={() => setSummariesModalOpen(false)}
-    documents={documents}
-/>
-*/}
     </div>
   )
 }
