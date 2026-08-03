@@ -58,7 +58,7 @@ function DocumentDetailPage() {
     )
   }
 
-  const fileUrl = document ? `http://localhost:8080/api/documents/${document.idDocument}/file` : null
+  const fileUrl = document ? `/api/documents/${documentId}/file` : null
 
   return (
     <div className="document-detail">
