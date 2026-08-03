@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import SummaryModal from './SummaryModal'
 import FlashcardViewer from './FlashcardViewer'
@@ -20,7 +20,7 @@ function StudyPanel({ document }) {
   })
   const { addToast } = useToast()
 
-  async function loadSummary() {
+  const loadSummary = useCallback(async () => {
     if (!document) return
     setLoading(prev => ({ ...prev, summary: true }))
     try {
@@ -31,9 +31,9 @@ function StudyPanel({ document }) {
     } finally {
       setLoading(prev => ({ ...prev, summary: false }))
     }
-  }
+  }, [document])
 
-  async function loadFlashcards() {
+  const loadFlashcards = useCallback(async () => {
     if (!document) return
     setLoading(prev => ({ ...prev, flashcards: true }))
     try {
@@ -44,9 +44,9 @@ function StudyPanel({ document }) {
     } finally {
       setLoading(prev => ({ ...prev, flashcards: false }))
     }
-  }
+  }, [document])
 
-  async function loadQuiz() {
+  const loadQuiz = useCallback(async () => {
     if (!document) return
     setLoading(prev => ({ ...prev, quiz: true }))
     try {
@@ -57,7 +57,17 @@ function StudyPanel({ document }) {
     } finally {
       setLoading(prev => ({ ...prev, quiz: false }))
     }
-  }
+  }, [document])
+
+  useEffect(() => {
+    if (!document) return
+
+    void Promise.all([
+      loadSummary(),
+      loadFlashcards(),
+      loadQuiz()
+    ])
+  }, [document, loadSummary, loadFlashcards, loadQuiz])
 
   async function handleGenerateSummary() {
     setLoading(prev => ({ ...prev, summary: true }))
@@ -65,7 +75,7 @@ function StudyPanel({ document }) {
       const data = await generateSummary(document.idDocument)
       setSummary(data)
       addToast('Resumen generado correctamente', 'success')
-    } catch (error) {
+    } catch {
       addToast('Error al generar el resumen', 'error')
     } finally {
       setLoading(prev => ({ ...prev, summary: false }))
@@ -80,7 +90,7 @@ function StudyPanel({ document }) {
         const data = await regenerateSummary(document.idDocument)
         setSummary(data)
         addToast('Resumen regenerado correctamente', 'success')
-      } catch (error) {
+      } catch {
         addToast('Error al regenerar el resumen', 'error')
       } finally {
         setLoading(prev => ({ ...prev, summary: false }))
@@ -94,7 +104,7 @@ function StudyPanel({ document }) {
       const data = await generateFlashcards(document.idDocument)
       setFlashcards(data)
       addToast('Flashcards generadas correctamente', 'success')
-    } catch (error) {
+    } catch {
       addToast('Error al generar las flashcards', 'error')
     } finally {
       setLoading(prev => ({ ...prev, flashcards: false }))
@@ -107,7 +117,7 @@ function StudyPanel({ document }) {
       const data = await regenerateFlashcards(document.idDocument)
       setFlashcards(data)
       addToast('Flashcards regeneradas correctamente', 'success')
-    } catch (error) {
+    } catch {
       addToast('Error al regenerar las flashcards', 'error')
     } finally {
       setLoading(prev => ({ ...prev, flashcards: false }))
@@ -120,7 +130,7 @@ function StudyPanel({ document }) {
       const data = await generateQuiz(document.idDocument)
       setQuiz(data)
       addToast('Test generado correctamente', 'success')
-    } catch (error) {
+    } catch {
       addToast('Error al generar el test', 'error')
     } finally {
       setLoading(prev => ({ ...prev, quiz: false }))
@@ -133,7 +143,7 @@ function StudyPanel({ document }) {
       const data = await regenerateQuiz(document.idDocument)
       setQuiz(data)
       addToast('Test regenerado correctamente', 'success')
-    } catch (error) {
+    } catch {
       addToast('Error al regenerar el test', 'error')
     } finally {
       setLoading(prev => ({ ...prev, quiz: false }))
