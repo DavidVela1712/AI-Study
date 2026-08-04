@@ -69,8 +69,8 @@ function FlashcardViewer({ flashcards, loading, onGenerate, onRegenerate }) {
             {currentIndex + 1} / {flashcards.length}
           </span>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={handleRegenerate}>
-          <RefreshCcw size={16} style={{ marginRight: 8 }} /> Regenerar
+        <button className="btn btn-secondary btn-sm" onClick={handleRegenerate} disabled={loading}>
+          <RefreshCcw size={16} style={{ marginRight: 8 }} /> {loading ? 'Generando...' : 'Regenerar'}
         </button>
       </div>
 
@@ -109,14 +109,14 @@ function FlashcardViewer({ flashcards, loading, onGenerate, onRegenerate }) {
         <button
           className="btn btn-secondary"
           onClick={handlePrevious}
-          disabled={flashcards.length <= 1}
+        disabled={flashcards.length <= 1 || loading}
         >
           <ArrowLeft size={16} style={{ marginRight: 8 }} /> Anterior
         </button>
         <button
           className="btn btn-secondary"
           onClick={handleNext}
-          disabled={flashcards.length <= 1}
+        disabled={flashcards.length <= 1 || loading}
         >
           Siguiente <ArrowRight size={16} style={{ marginLeft: 8 }} />
         </button>

@@ -10,10 +10,10 @@ function SummarySection({ summary, loading, onRegenerate, onDelete }) {
           <h2 className="summary-section__title">Tu resumen del documento</h2>
         </div>
         <div className="summary-section__actions">
-          <button className="btn btn-secondary" type="button" onClick={onRegenerate}>
-            <RotateCcw size={16} /> Regenerar
+          <button className="btn btn-secondary" type="button" onClick={onRegenerate} disabled={loading}>
+            <RotateCcw size={16} /> {loading ? 'Generando...' : 'Regenerar'}
           </button>
-          <button className="btn btn-danger" type="button" onClick={onDelete}>
+          <button className="btn btn-danger" type="button" onClick={onDelete} disabled={loading}>
             <Trash2 size={16} /> Eliminar
           </button>
         </div>
@@ -22,7 +22,7 @@ function SummarySection({ summary, loading, onRegenerate, onDelete }) {
       {loading ? (
         <div className="summary-section__loading">
           <div className="loading-spinner"></div>
-          <p>Generando resumen...</p>
+          <p>Generando contenido con IA...</p>
         </div>
       ) : summary ? (
         <div className="summary-section__body">
