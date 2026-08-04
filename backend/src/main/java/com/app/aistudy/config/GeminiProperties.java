@@ -7,24 +7,40 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "gemini")
 public class GeminiProperties {
 
-    /** API key for Gemini */
-    private String apiKey;
+    /** Nested holder to map gemini.api.key property */
+    private ApiConfig api = new ApiConfig();
 
-    /** Base endpoint, default to Gemini public API host */
-    private String endpoint = "https://gemini.googleapis.com";
+    /** Base endpoint, default to official Generative Language API host */
+    private String endpoint = "https://generativelanguage.googleapis.com";
 
-    /** Model path, e.g. /v1/models/gemini-2.5-flash:generate */
-    private String modelPath = "/v1/models/gemini-2.5-flash:generate";
+    /** Model path default matching official generateContent endpoint */
+    private String modelPath = "/v1beta/models/gemini-flash-latest:generateContent";
 
     /** Default max tokens for generation */
     private int maxOutputTokens = 1024;
 
-    public String getApiKey() {
-        return apiKey;
+    public static class ApiConfig {
+        private String key;
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
     }
 
-    public void setApiKey(String apiKey) {
-        this.apiKey = apiKey;
+    public ApiConfig getApi() {
+        return api;
+    }
+
+    public void setApi(ApiConfig api) {
+        this.api = api;
+    }
+
+    public String getApiKey() {
+        return this.api == null ? null : this.api.getKey();
     }
 
     public String getEndpoint() {
