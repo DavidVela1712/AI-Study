@@ -1,4 +1,5 @@
 HELP.md
+uploads/
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -31,3 +32,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### application-local.properties ###
+src/main/resources/application-local.properties
