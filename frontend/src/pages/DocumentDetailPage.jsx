@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, Layers } from 'lucide-react'
 import PDFViewer from '../components/PDFViewer'
 import StudyPanel from '../components/StudyPanel'
 import { getDocument } from '../services/documentService'
@@ -8,6 +9,7 @@ import './DocumentDetailPage.css'
 
 function DocumentDetailPage() {
   const { documentId } = useParams()
+  const navigate = useNavigate()
   const [document, setDocument] = useState(null)
   const [subject, setSubject] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -42,6 +44,7 @@ function DocumentDetailPage() {
   }, [loadDocument])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSubject()
   }, [loadSubject])
 
@@ -58,19 +61,26 @@ function DocumentDetailPage() {
     )
   }
 
-  const fileUrl = document ? `http://localhost:8080/api/documents/${document.idDocument}/file` : null
+  const fileUrl = document ? `/api/documents/${documentId}/file` : null
 
   return (
     <div className="document-detail">
-      <div className="document-detail__header">
-        <Link to={`/subjects/${subject?.idSubject || ''}`} className="back-link">
-          ← Volver a {subject?.name || 'asignatura'}
-        </Link>
-        <div className="document-detail__info">
-          <h1>{document?.originalFileName}</h1>
-          {subject && (
-            <span className="document-detail__subject">{subject.name}</span>
-          )}
+      <div className="document-detail__header card">
+        <div className="document-detail__breadcrumb">
+          <button className="breadcrumb-link" type="button" onClick={() => navigate(-1)}>
+            <ArrowLeft size={16} />
+            Volver
+          </button>
+          <div className="document-detail__info">
+            <p className="document-detail__label">Documento</p>
+            <h1>{document?.originalFileName}</h1>
+            {subject && (
+              <div className="document-detail__meta">
+                <Layers size={16} />
+                <span>{subject.name}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

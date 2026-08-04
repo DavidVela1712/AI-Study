@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import './SubjectModal.css'
 
 function SubjectModal({ isOpen, onClose, onSubmit, initialData }) {
@@ -29,7 +30,7 @@ function SubjectModal({ isOpen, onClose, onSubmit, initialData }) {
         <div className="modal-header">
           <h2>{initialData ? 'Editar asignatura' : 'Nueva asignatura'}</h2>
           <button className="modal-close" onClick={onClose}>
-            ✕
+            <X size={18} />
           </button>
         </div>
 

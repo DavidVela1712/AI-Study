@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useToast } from '../context/ToastContext'
+import { ArrowLeft, ArrowRight, RefreshCcw, FileText } from 'lucide-react'
 import './QuizViewer.css'
 
 function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
@@ -35,7 +36,7 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
       try {
         await onRegenerate()
         addToast('Test regenerado correctamente', 'success')
-      } catch (error) {
+      } catch {
         addToast('Error al regenerar el test', 'error')
       }
     }
@@ -54,7 +55,7 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
     return (
       <div className="quiz-viewer quiz-viewer--empty">
         <div className="quiz-viewer__placeholder">
-          <div className="quiz-viewer__icon">📝</div>
+            <div className="quiz-viewer__icon"><FileText size={32} /></div>
           <h3>No hay test generado</h3>
           <p>Genera un test para evaluar tu conocimiento</p>
           <button className="btn btn-primary" onClick={handleGenerate}>
@@ -72,13 +73,13 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
     <div className="quiz-viewer">
       <div className="quiz-viewer__header">
         <div className="quiz-viewer__info">
-          <h3>📝 Test</h3>
+          <h3>Test</h3>
           <span className="quiz-viewer__count">
             {currentIndex + 1} / {quiz.questions.length}
           </span>
         </div>
         <button className="btn btn-secondary btn-sm" onClick={handleRegenerate}>
-          🔄 Regenerar
+          <RefreshCcw size={16} style={{ marginRight: 8 }} /> Regenerar
         </button>
       </div>
 
@@ -127,14 +128,14 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
           onClick={handlePrevious}
           disabled={quiz.questions.length <= 1}
         >
-          ← Anterior
+          <ArrowLeft size={16} style={{ marginRight: 8 }} /> Anterior
         </button>
         <button
           className="btn btn-secondary"
           onClick={handleNext}
           disabled={quiz.questions.length <= 1}
         >
-          Siguiente →
+          Siguiente <ArrowRight size={16} style={{ marginLeft: 8 }} />
         </button>
       </div>
     </div>

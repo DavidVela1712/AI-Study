@@ -1,54 +1,34 @@
 # AI Study
 
-AI Study es una plataforma web impulsada por inteligencia artificial diseñada para ayudar a los estudiantes a estudiar de forma más eficiente. A partir de sus propios apuntes y documentos, la aplicación genera recursos personalizados como resúmenes, preguntas tipo test, flashcards y explicaciones, convirtiéndose en un asistente de estudio personal.
+> Plataforma SaaS de estudio impulsada por Inteligencia Artificial.
+
+AI Study es una aplicación web diseñada para transformar documentos de estudio en recursos interactivos mediante IA.
+
+El objetivo es que el estudiante deje de perder tiempo preparando el estudio y pueda centrarse únicamente en aprender.
+
+Actualmente la plataforma permite organizar asignaturas, subir documentos PDF, visualizar su contenido y generar automáticamente recursos de estudio como resúmenes, flashcards y cuestionarios.
 
 ---
 
-# 🎯 El problema
+# ✨ Características
 
-Los estudiantes dedican mucho tiempo a preparar material antes incluso de empezar a estudiar.
+Actualmente AI Study permite:
 
-Resumir apuntes, crear preguntas, organizar documentos o preparar tarjetas de memoria son tareas repetitivas que consumen tiempo y dificultan mantener un estudio organizado.
-
-Aunque existen herramientas de IA capaces de responder preguntas, pocas están centradas en construir un espacio donde todo el conocimiento del estudiante quede organizado alrededor de sus propios apuntes.
-
----
-
-# 💡 La solución
-
-AI Study ofrece un espacio donde cada usuario puede almacenar sus apuntes y utilizar la inteligencia artificial para generar automáticamente material de estudio personalizado.
-
-La plataforma transforma documentos en recursos útiles para el aprendizaje, manteniendo un historial organizado y facilitando el seguimiento del estudio desde un único lugar.
-
----
-
-# ✨ Funcionalidades
-
-## Implementadas
-
-- Registro de usuarios.
-- Inicio de sesión (próximamente con JWT).
-- Gestión de usuarios.
-- Arquitectura REST con Spring Boot.
-- Persistencia de datos en PostgreSQL.
-
-## En desarrollo
-
-- Subida de apuntes (PDF, imágenes y texto).
-- Generación automática de resúmenes mediante IA.
-- Chat contextual sobre los apuntes.
-- Historial de documentos.
-
-## Próximas fases
-
-- Generación de preguntas tipo test.
-- Creación de flashcards.
-- Generación de esquemas.
-- Historial de conversaciones.
+- 📚 Gestión de asignaturas.
+- 📄 Subida de documentos PDF.
+- 👀 Vista previa integrada del PDF.
+- 📝 Generación automática de resúmenes.
+- 🧠 Generación automática de flashcards.
+- ✅ Generación automática de tests.
+- ♻️ Regeneración de contenido.
+- 🗑️ Eliminación de recursos generados.
+- 🎨 Interfaz moderna tipo SaaS.
+- 🔒 Arquitectura preparada para autenticación JWT.
+- 🤖 Arquitectura preparada para integrar cualquier LLM.
 
 ---
 
-# 🛠️ Stack tecnológico
+# 🚀 Tecnologías
 
 ## Backend
 
@@ -57,138 +37,291 @@ La plataforma transforma documentos en recursos útiles para el aprendizaje, man
 - Spring Web
 - Spring Data JPA
 - Maven
+- Apache PDFBox
 
 ## Frontend
 
 - React
 - Vite
 - Axios
-- Tailwind CSS
+- React Router
+- React PDF
+- CSS Modules / CSS propio
 
 ## Base de datos
 
 - PostgreSQL
 
-## Inteligencia Artificial
+## IA
 
-- Integración con un modelo LLM mediante API (pendiente de definir).
+Actualmente:
+
+- Servicio IA simulado (MockAIService)
+
+Preparado para integrar:
+
+- OpenAI
+- Gemini
+- Claude
+- Ollama
+- OpenRouter
+- Azure OpenAI
+
+sin modificar la arquitectura.
 
 ---
 
-# 🏗️ Arquitectura
+# 🏛 Arquitectura
 
-El proyecto sigue una arquitectura en capas para mantener una clara separación de responsabilidades.
+El proyecto sigue una arquitectura por capas siguiendo principios SOLID.
 
-```text
+```
 Controller
-│
-├── Service
-│
-├── Repository
-│
-├── Entity
-│
-├── DTO (Request / Response)
-│
-└── PostgreSQL
+        │
+        ▼
+Service
+        │
+        ▼
+Repository
+        │
+        ▼
+Entity
+        │
+        ▼
+PostgreSQL
 ```
 
-La API está diseñada siguiendo principios REST e incorpora:
+La comunicación entre backend y frontend se realiza mediante DTOs independientes.
 
-- DTOs para entrada y salida de datos.
-- Validaciones.
-- Manejo centralizado de excepciones.
-- Arquitectura preparada para Spring Security + JWT.
-- Separación clara entre lógica de negocio y acceso a datos.
+```
+Entity
+    ⇅
+DTO
+    ⇅
+React Services
+    ⇅
+Pages
+    ⇅
+Components
+```
 
 ---
 
-# 📂 Estructura del proyecto
+# 📂 Organización
 
 ```
-AI-Study/
-
-├── backend/
-│   ├── controllers/
-│   ├── services/
-│   ├── repositories/
-│   ├── entities/
-│   ├── dto/
-│   ├── config/
-│   └── exceptions/
+AI-Study
 │
-├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   ├── components/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── context/
-│   │   └── assets/
+├── backend
 │
-├── database/
+│   ├── controller
+│   ├── service
+│   ├── repository
+│   ├── dto
+│   ├── model
+│   ├── config
+│   └── resources
 │
-└── README.md
+├── frontend
+│
+│   ├── pages
+│   ├── components
+│   ├── services
+│   ├── layouts
+│   ├── context
+│   ├── hooks
+│   └── api
+│
+└── uploads
 ```
-
-> *La estructura podrá evolucionar conforme avance el desarrollo del proyecto.*
 
 ---
 
-# 🚀 Buenas prácticas
+# 📖 Flujo de la aplicación
 
-- Arquitectura REST.
-- Separación por capas.
-- DTO Request / Response.
-- Uso de ResponseEntity.
-- Manejo centralizado de errores HTTP.
-- Control de versiones con Git y GitHub.
-- Gestión de tareas mediante GitHub Projects.
-- Desarrollo incremental siguiendo metodologías ágiles.
+```
+Dashboard
+
+      │
+
+      ▼
+
+Asignaturas
+
+      │
+
+      ▼
+
+Documentos
+
+      │
+
+      ▼
+
+Documento
+
+ ├── Vista previa PDF
+ ├── Resumen IA
+ ├── Flashcards
+ ├── Test
+ └── Chat IA (próximamente)
+```
 
 ---
 
-# 📈 Estado del proyecto
+# 📄 Gestión de documentos
+
+Cada documento dispone de:
+
+- almacenamiento físico
+- extracción automática de texto
+- estado de procesamiento
+- vista previa PDF
+- recursos independientes generados mediante IA
+
+Toda la información gira alrededor del documento.
+
+```
+User
+
+   │
+
+Subject
+
+   │
+
+Document
+
+├──────────────┐
+│              │
+▼              ▼
+
+Summary   Flashcard
+
+│
+
+▼
+
+Quiz
+
+│
+
+▼
+
+Question
+```
+
+---
+
+# 🧠 Funciones IA
+
+Actualmente la generación utiliza un servicio IA simulado.
+
+Esto permite desarrollar toda la arquitectura sin depender todavía de una API externa.
+
+Los siguientes recursos pueden generarse automáticamente:
+
+- Resúmenes
+- Flashcards
+- Tests
+
+La arquitectura está preparada para sustituir el servicio por cualquier proveedor LLM.
+
+---
+
+# 📊 Estado del proyecto
 
 ## ✅ Completado
 
-- Configuración del proyecto Spring Boot.
-- Conexión con PostgreSQL.
-- CRUD completo de usuarios.
-- Arquitectura Controller-Service-Repository.
-- DTO Request / Response.
-- Conversión manual Entity ↔ DTO.
-- Campo `createdAt` automático mediante `@PrePersist`.
-- README inicial.
-
-## 🚧 En desarrollo
-
-- Autenticación con Spring Security + JWT.
+- Arquitectura completa Spring Boot.
+- CRUD Usuarios.
+- CRUD Asignaturas.
 - Gestión de documentos.
-- Subida de archivos.
-- Integración con IA.
-
-## 🔮 Próximas fases
-
-- Generación de resúmenes.
-- Chat sobre documentos.
-- Flashcards.
-- Tests automáticos.
-- Historial de conversaciones.
-- Sistema de créditos.
-- Versión SaaS.
+- Subida de PDFs.
+- Extracción automática de texto.
+- Visor PDF integrado.
+- Dashboard.
+- Resúmenes IA.
+- Flashcards IA.
+- Tests IA.
+- DTOs completos.
+- Arquitectura preparada para JWT.
+- Arquitectura preparada para LLM.
 
 ---
 
-# 🎯 Objetivo del proyecto
+## 🚧 En desarrollo
 
-Este proyecto nace con un doble objetivo:
+- Login.
+- Registro.
+- Tema claro / oscuro.
+- Mejoras UI.
+- Optimización de componentes.
+- Historial de estudio.
 
-- Desarrollar una plataforma útil para estudiantes que aproveche el potencial de la inteligencia artificial para mejorar el proceso de aprendizaje.
-- Aplicar buenas prácticas de desarrollo Full Stack utilizando una arquitectura profesional que pueda formar parte de mi portfolio como desarrollador Java Full Stack.
+---
+
+## 🔮 Próximas funcionalidades
+
+- Chat con IA sobre el documento.
+- Conversación con contexto.
+- Generación de ejercicios.
+- Corrección automática.
+- Explicaciones adaptadas al nivel.
+- Historial de conversaciones.
+- Sistema de créditos.
+- Despliegue cloud.
+- SaaS multiusuario.
+
+---
+
+# 📸 Capturas
+
+Próximamente se añadirán capturas de:
+
+- Dashboard
+- Vista documento
+- Visor PDF
+- Panel de estudio
+- Flashcards
+- Test
+
+---
+
+# 🎯 Objetivo
+
+AI Study nace con un doble propósito.
+
+Como aplicación:
+
+Construir una plataforma que permita estudiar cualquier documento utilizando Inteligencia Artificial.
+
+Como proyecto personal:
+
+Desarrollar una aplicación Full Stack moderna utilizando una arquitectura escalable, limpia y preparada para un entorno profesional, sirviendo como proyecto principal de portfolio.
+
+---
+
+# 📌 Roadmap
+
+- [x] Gestión de usuarios
+- [x] Gestión de asignaturas
+- [x] Gestión de documentos
+- [x] Extracción de texto PDF
+- [x] Visor PDF
+- [x] Resúmenes IA
+- [x] Flashcards
+- [x] Tests
+- [ ] Login
+- [ ] JWT
+- [ ] Chat IA
+- [ ] Tema oscuro
+- [ ] Despliegue
+- [ ] Docker
+- [ ] CI/CD
 
 ---
 
 # 📄 Licencia
 
-Este proyecto está siendo desarrollado con fines educativos y como proyecto de portfolio personal.
+Proyecto desarrollado con fines educativos y como portfolio personal.

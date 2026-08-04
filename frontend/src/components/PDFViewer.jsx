@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { pdfjs, Document, Page } from 'react-pdf'
+import { AlertTriangle, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, FileText } from 'lucide-react'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import './PDFViewer.css'
@@ -18,7 +19,7 @@ function PDFViewer({ fileUrl }) {
     setLoading(false)
   }
 
-  function onDocumentLoadError(error) {
+  function onDocumentLoadError() {
     setError('No se pudo cargar el PDF')
     setLoading(false)
   }
@@ -47,7 +48,7 @@ function PDFViewer({ fileUrl }) {
     return (
       <div className="pdf-viewer pdf-viewer--empty">
         <div className="pdf-viewer__placeholder">
-          <div className="pdf-viewer__icon">📄</div>
+            <div className="pdf-viewer__icon"><FileText size={32} /></div>
           <p>No hay documento para visualizar</p>
         </div>
       </div>
@@ -58,7 +59,7 @@ function PDFViewer({ fileUrl }) {
     return (
       <div className="pdf-viewer pdf-viewer--error">
         <div className="pdf-viewer__placeholder">
-          <div className="pdf-viewer__icon">⚠️</div>
+            <div className="pdf-viewer__icon"><AlertTriangle size={32} /></div>
           <p>{error}</p>
           <p className="pdf-viewer__hint">La vista previa no está disponible para este formato</p>
         </div>
@@ -76,7 +77,7 @@ function PDFViewer({ fileUrl }) {
             disabled={pageNumber <= 1}
             title="Página anterior"
           >
-            ←
+            <ChevronLeft size={18} />
           </button>
           <span className="pdf-viewer__page-info">
             {pageNumber} / {numPages || '--'}
@@ -87,7 +88,7 @@ function PDFViewer({ fileUrl }) {
             disabled={numPages === null || pageNumber >= numPages}
             title="Página siguiente"
           >
-            →
+            <ChevronRight size={18} />
           </button>
         </div>
         <div className="pdf-viewer__zoom-controls">
@@ -97,7 +98,7 @@ function PDFViewer({ fileUrl }) {
             disabled={scale <= 0.5}
             title="Reducir zoom"
           >
-            −
+            <ZoomOut size={18} />
           </button>
           <span className="pdf-viewer__zoom-info">{Math.round(scale * 100)}%</span>
           <button
@@ -106,7 +107,7 @@ function PDFViewer({ fileUrl }) {
             disabled={scale >= 3.0}
             title="Aumentar zoom"
           >
-            +
+            <ZoomIn size={18} />
           </button>
         </div>
       </div>
