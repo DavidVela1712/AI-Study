@@ -1,3 +1,4 @@
+import { FileText, File, Image, Paperclip } from 'lucide-react'
 import './DocumentCard.css'
 
 function DocumentCard({ document, selected, onSelect, disabled, disabledReason }) {
@@ -5,18 +6,18 @@ function DocumentCard({ document, selected, onSelect, disabled, disabledReason }
     const ext = fileName.split('.').pop().toLowerCase()
     switch (ext) {
       case 'pdf':
-        return '📄'
+        return <FileText size={22} />
       case 'doc':
       case 'docx':
-        return '📝'
+        return <FileText size={22} />
       case 'txt':
-        return '📃'
+        return <File size={22} />
       case 'jpg':
       case 'jpeg':
       case 'png':
-        return '🖼️'
+        return <Image size={22} />
       default:
-        return '📎'
+        return <Paperclip size={22} />
     }
   }
 

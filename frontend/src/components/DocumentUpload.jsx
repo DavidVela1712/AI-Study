@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { UploadCloud } from 'lucide-react'
 
-function DocumentUpload({ subjectId, onUpload }) {
+function DocumentUpload({ onUpload }) {
   const [uploading, setUploading] = useState(false)
 
   async function handleFileChange(event) {
@@ -18,7 +19,7 @@ function DocumentUpload({ subjectId, onUpload }) {
 
   return (
     <label className="btn btn-primary">
-      {uploading ? 'Subiendo...' : '📤 Subir documento'}
+      {uploading ? 'Subiendo...' : <><UploadCloud size={16} style={{ marginRight: 8 }} /> Subir documento</>}
       <input
         type="file"
         onChange={handleFileChange}
