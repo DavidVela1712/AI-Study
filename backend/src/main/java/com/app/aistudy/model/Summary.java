@@ -13,8 +13,8 @@ public class Summary {
     @Column(name = "id_summary")
     private Integer idSummary;
 
-    @ManyToOne
-    @JoinColumn(name = "document_id", nullable = false)
+    @OneToOne
+    @JoinColumn(name = "document_id", nullable = false, unique = true)
     private Document document;
 
     @Column(name = "content", columnDefinition = "TEXT")

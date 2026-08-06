@@ -35,13 +35,16 @@ function StudyPanel({ document }) {
     try {
       const data = await getSummaryByDocument(document.idDocument)
       setSummary(data)
-    } catch {
-      try {
-        const generated = await generateSummary(document.idDocument)
-        setSummary(generated)
-      } catch {
-        addToast('No se pudo generar el resumen automáticamente.', 'error')
-        setSummary(null)
+    } catch (error) {
+
+      if (error.response?.status === 404) {
+
+          const generated = await generateSummary(document.idDocument)
+          setSummary(generated)
+
+      } else {
+
+          addToast("Error obteniendo el resumen", "error")
       }
     } finally {
       setLoading((prev) => ({ ...prev, summary: false }))
@@ -54,13 +57,16 @@ function StudyPanel({ document }) {
     try {
       const data = await getFlashcardsByDocument(document.idDocument)
       setFlashcards(data)
-    } catch {
-      try {
-        const generated = await generateFlashcards(document.idDocument)
-        setFlashcards(generated)
-      } catch {
-        addToast('No se pudieron generar las flashcards automáticamente.', 'error')
-        setFlashcards(null)
+    } catch (error) {
+
+      if (error.response?.status === 404) {
+
+          const generated = await generateFlashcards(document.idDocument)
+          setFlashcards(generated)
+
+      } else {
+
+          addToast("Error obteniendo las flashcards", "error")
       }
     } finally {
       setLoading((prev) => ({ ...prev, flashcards: false }))
@@ -73,13 +79,16 @@ function StudyPanel({ document }) {
     try {
       const data = await getQuizByDocument(document.idDocument)
       setQuiz(data)
-    } catch {
-      try {
-        const generated = await generateQuiz(document.idDocument)
-        setQuiz(generated)
-      } catch {
-        addToast('No se pudo generar el test automáticamente.', 'error')
-        setQuiz(null)
+    }  catch (error) {
+
+      if (error.response?.status === 404) {
+
+          const generated = await generateQuiz(document.idDocument)
+          setQuiz(generated)
+
+      } else {
+
+          addToast("Error obteniendo el test", "error")
       }
     } finally {
       setLoading((prev) => ({ ...prev, quiz: false }))
