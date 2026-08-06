@@ -1,48 +1,63 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { ArrowLeft, ArrowRight, RefreshCcw, FileText } from 'lucide-react'
 import './QuizViewer.css'
+import useResource from '../hooks/useResource'
+import { getQuizByDocument, generateQuiz, regenerateQuiz } from '../services/quizService'
 
-function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
+function QuizViewer({ document }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [showResult, setShowResult] = useState(false)
   const { addToast } = useToast()
 
-  function handleNext() {
+  const { status, data: quiz, error, generate, regenerate, reload } = useResource({
+    documentId: document ? document.idDocument : null,
+    fetchFn: getQuizByDocument,
+    generateFn: generateQuiz,
+    regenerateFn: regenerateQuiz,
+  })
+
+  const handleNext = useCallback(() => {
     setSelectedAnswer(null)
     setShowResult(false)
+    if (!quiz || !quiz.questions) return
     setCurrentIndex(prev => (prev + 1) % quiz.questions.length)
-  }
+  }, [quiz])
 
-  function handlePrevious() {
+  const handlePrevious = useCallback(() => {
     setSelectedAnswer(null)
     setShowResult(false)
+    if (!quiz || !quiz.questions) return
     setCurrentIndex(prev => (prev - 1 + quiz.questions.length) % quiz.questions.length)
-  }
+  }, [quiz])
 
-  function handleAnswerSelect(option) {
+  const handleAnswerSelect = useCallback((option) => {
     setSelectedAnswer(option)
     setShowResult(true)
-  }
+  }, [])
 
-  function handleGenerate() {
-    onGenerate()
-  }
-
-  async function handleRegenerate() {
-    const confirmed = window.confirm('¿Deseas regenerar el test? Esto reemplazará el existente.')
-    if (confirmed) {
-      try {
-        await onRegenerate()
-        addToast('Test regenerado correctamente', 'success')
-      } catch {
-        addToast('Error al regenerar el test', 'error')
-      }
+  const handleGenerate = useCallback(async () => {
+    try {
+      await generate()
+      addToast('Test generado correctamente', 'success')
+    } catch {
+      addToast('Error al generar el test', 'error')
     }
-  }
+  }, [generate, addToast])
 
-  if (loading) {
+  const handleRegenerate = useCallback(async () => {
+    const confirmed = window.confirm('¿Deseas regenerar el test? Esto reemplazará el existente.')
+    if (!confirmed) return
+    try {
+      await regenerate()
+      addToast('Test regenerado correctamente', 'success')
+    } catch {
+      addToast('Error al regenerar el test', 'error')
+    }
+  }, [regenerate, addToast])
+
+  if (status === 'loading') {
     return (
       <div className="quiz-viewer quiz-viewer--loading">
         <div className="loading-spinner"></div>
@@ -51,17 +66,26 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
     )
   }
 
-  if (!quiz || !quiz.questions || quiz.questions.length === 0) {
+  if (status === 'empty' || !quiz || !quiz.questions || quiz.questions.length === 0) {
     return (
       <div className="quiz-viewer quiz-viewer--empty">
         <div className="quiz-viewer__placeholder">
             <div className="quiz-viewer__icon"><FileText size={32} /></div>
-          <h3>No hay test generado</h3>
-          <p>Genera un test para evaluar tu conocimiento</p>
+          <h3>No existe ningún test para este documento</h3>
+          <p>Genera un test cuando quieras evaluar tu conocimiento.</p>
           <button className="btn btn-primary" onClick={handleGenerate}>
             Generar test
           </button>
         </div>
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="quiz-viewer quiz-viewer--error">
+        <p>Error al cargar el test.</p>
+        <button className="btn btn-secondary" onClick={reload}>Reintentar</button>
       </div>
     )
   }
@@ -78,8 +102,8 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
             {currentIndex + 1} / {quiz.questions.length}
           </span>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={handleRegenerate} disabled={loading}>
-          <RefreshCcw size={16} style={{ marginRight: 8 }} /> {loading ? 'Generando...' : 'Regenerar'}
+        <button className="btn btn-secondary btn-sm" onClick={handleRegenerate} disabled={status === 'loading'}>
+          <RefreshCcw size={16} style={{ marginRight: 8 }} /> {status === 'loading' ? 'Generando...' : 'Regenerar'}
         </button>
       </div>
 
@@ -126,14 +150,14 @@ function QuizViewer({ quiz, loading, onGenerate, onRegenerate }) {
         <button
           className="btn btn-secondary"
           onClick={handlePrevious}
-          disabled={quiz.questions.length <= 1 || loading}
+          disabled={quiz.questions.length <= 1 || status === 'loading'}
         >
           <ArrowLeft size={16} style={{ marginRight: 8 }} /> Anterior
         </button>
         <button
           className="btn btn-secondary"
           onClick={handleNext}
-          disabled={quiz.questions.length <= 1 || loading}
+          disabled={quiz.questions.length <= 1 || status === 'loading'}
         >
           Siguiente <ArrowRight size={16} style={{ marginLeft: 8 }} />
         </button>
