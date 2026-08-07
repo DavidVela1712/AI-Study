@@ -1,40 +1,55 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { ArrowLeft, ArrowRight, Eye, EyeOff, RefreshCcw, Zap } from 'lucide-react'
 import './FlashcardViewer.css'
+import useResource from '../hooks/useResource'
+import { getFlashcardsByDocument, generateFlashcards, regenerateFlashcards } from '../services/flashcardService'
 
-function FlashcardViewer({ flashcards, loading, onGenerate, onRegenerate }) {
+function FlashcardViewer({ document }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
   const { addToast } = useToast()
 
-  function handleNext() {
+  const { status, data: flashcards, error, generate, regenerate, reload } = useResource({
+    documentId: document ? document.idDocument : null,
+    fetchFn: getFlashcardsByDocument,
+    generateFn: generateFlashcards,
+    regenerateFn: regenerateFlashcards,
+  })
+
+  const handleNext = useCallback(() => {
     setShowAnswer(false)
+    if (!flashcards || flashcards.length === 0) return
     setCurrentIndex(prev => (prev + 1) % flashcards.length)
-  }
+  }, [flashcards])
 
-  function handlePrevious() {
+  const handlePrevious = useCallback(() => {
     setShowAnswer(false)
+    if (!flashcards || flashcards.length === 0) return
     setCurrentIndex(prev => (prev - 1 + flashcards.length) % flashcards.length)
-  }
+  }, [flashcards])
 
-  function handleGenerate() {
-    onGenerate()
-  }
-
-  async function handleRegenerate() {
-    const confirmed = window.confirm('¿Deseas regenerar las flashcards? Esto reemplazará las existentes.')
-    if (confirmed) {
-      try {
-        await onRegenerate()
-        addToast('Flashcards regeneradas correctamente', 'success')
-      } catch {
-        addToast('Error al regenerar flashcards', 'error')
-      }
+  const handleGenerate = useCallback(async () => {
+    try {
+      await generate()
+      addToast('Flashcards generadas correctamente', 'success')
+    } catch {
+      addToast('Error al generar flashcards', 'error')
     }
-  }
+  }, [generate, addToast])
 
-  if (loading) {
+  const handleRegenerate = useCallback(async () => {
+    const confirmed = window.confirm('¿Deseas regenerar las flashcards? Esto reemplazará las existentes.')
+    if (!confirmed) return
+    try {
+      await regenerate()
+      addToast('Flashcards regeneradas correctamente', 'success')
+    } catch {
+      addToast('Error al regenerar flashcards', 'error')
+    }
+  }, [regenerate, addToast])
+
+  if (status === 'loading') {
     return (
       <div className="flashcard-viewer flashcard-viewer--loading">
         <div className="loading-spinner"></div>
@@ -43,17 +58,26 @@ function FlashcardViewer({ flashcards, loading, onGenerate, onRegenerate }) {
     )
   }
 
-  if (!flashcards || flashcards.length === 0) {
+  if (status === 'empty' || !flashcards || flashcards.length === 0) {
     return (
       <div className="flashcard-viewer flashcard-viewer--empty">
         <div className="flashcard-viewer__placeholder">
           <div className="flashcard-viewer__icon"><Zap size={32} /></div>
-          <h3>No hay flashcards generadas</h3>
-          <p>Genera flashcards para estudiar este documento</p>
+          <h3>No existen flashcards para este documento</h3>
+          <p>Genera flashcards solo cuando las necesites.</p>
           <button className="btn btn-primary" onClick={handleGenerate}>
             Generar flashcards
           </button>
         </div>
+      </div>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <div className="flashcard-viewer flashcard-viewer--error">
+        <p>Error al cargar las flashcards.</p>
+        <button className="btn btn-secondary" onClick={reload}>Reintentar</button>
       </div>
     )
   }
@@ -69,8 +93,8 @@ function FlashcardViewer({ flashcards, loading, onGenerate, onRegenerate }) {
             {currentIndex + 1} / {flashcards.length}
           </span>
         </div>
-        <button className="btn btn-secondary btn-sm" onClick={handleRegenerate} disabled={loading}>
-          <RefreshCcw size={16} style={{ marginRight: 8 }} /> {loading ? 'Generando...' : 'Regenerar'}
+        <button className="btn btn-secondary btn-sm" onClick={handleRegenerate} disabled={status === 'loading'}>
+          <RefreshCcw size={16} style={{ marginRight: 8 }} /> {status === 'loading' ? 'Generando...' : 'Regenerar'}
         </button>
       </div>
 
@@ -109,14 +133,14 @@ function FlashcardViewer({ flashcards, loading, onGenerate, onRegenerate }) {
         <button
           className="btn btn-secondary"
           onClick={handlePrevious}
-        disabled={flashcards.length <= 1 || loading}
+        disabled={flashcards.length <= 1 || status === 'loading'}
         >
           <ArrowLeft size={16} style={{ marginRight: 8 }} /> Anterior
         </button>
         <button
           className="btn btn-secondary"
           onClick={handleNext}
-        disabled={flashcards.length <= 1 || loading}
+        disabled={flashcards.length <= 1 || status === 'loading'}
         >
           Siguiente <ArrowRight size={16} style={{ marginLeft: 8 }} />
         </button>

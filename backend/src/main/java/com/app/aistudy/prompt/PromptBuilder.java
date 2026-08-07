@@ -55,4 +55,20 @@ public class PromptBuilder {
         sb.append(text);
         return sb.toString();
     }
+
+    /** Build a prompt for chat-style Q&A limited to the document content. */
+    public String buildChatPrompt(String documentText, String userQuestion) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Eres un asistente que responde preguntas usando únicamente la información del documento proporcionado.\n");
+        sb.append("Instrucciones:\n");
+        sb.append("- No inventes información ni utilices fuentes externas.\n");
+        sb.append("- Si la respuesta no está en el documento, indica claramente que no se encuentra en el texto.\n");
+        sb.append("- Responde de forma concisa y clara, cita secciones del documento si es apropiado.\n\n");
+        sb.append("Documento:\n");
+        sb.append(documentText);
+        sb.append("\n\nPregunta del usuario:\n");
+        sb.append(userQuestion);
+        sb.append("\n\nRespuesta esperada:\n");
+        return sb.toString();
+    }
 }
