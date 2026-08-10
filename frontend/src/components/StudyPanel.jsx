@@ -2,6 +2,7 @@ import { useState } from 'react'
 import SummarySection from './SummarySection'
 import FlashcardViewer from './FlashcardViewer'
 import QuizViewer from './QuizViewer'
+import ChatPanel from './ChatPanel'
 import './StudyPanel.css'
 
 function StudyPanel({ document }) {
@@ -38,7 +39,10 @@ function StudyPanel({ document }) {
         >
           Test
         </button>
-        <button className="study-tab study-tab--disabled" disabled>
+        <button
+          className={`study-tab ${activeTab === 'chat' ? 'study-tab--active' : ''}`}
+          onClick={() => setActiveTab('chat')}
+        >
           Chat IA
         </button>
       </div>
@@ -57,15 +61,7 @@ function StudyPanel({ document }) {
         )}
 
         {activeTab === 'chat' && (
-          <div className="chat-panel">
-            <div className="chat-panel__empty">
-              <h3>Chat IA</h3>
-              <p>Próximamente podrás chatear con tu documento y recibir respuestas inteligentes.</p>
-              <button className="btn btn-secondary" disabled>
-                Abrir chat
-              </button>
-            </div>
-          </div>
+          <ChatPanel document={document} />
         )}
       </div>
     </div>

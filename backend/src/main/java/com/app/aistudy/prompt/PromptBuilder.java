@@ -2,6 +2,8 @@ package com.app.aistudy.prompt;
 
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class PromptBuilder {
 
@@ -58,15 +60,31 @@ public class PromptBuilder {
 
     /** Build a prompt for chat-style Q&A limited to the document content. */
     public String buildChatPrompt(String documentText, String userQuestion) {
+        return buildChatPrompt(documentText, userQuestion, List.of());
+    }
+
+    /** Build a prompt for chat-style Q&A limited to the document content and recent conversation history. */
+    public String buildChatPrompt(String documentText, String userQuestion, List<String> recentConversationLines) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Eres un asistente que responde preguntas usando únicamente la información del documento proporcionado.\n");
+        sb.append("Eres un asistente de estudio especializado en el documento proporcionado.\n");
         sb.append("Instrucciones:\n");
-        sb.append("- No inventes información ni utilices fuentes externas.\n");
-        sb.append("- Si la respuesta no está en el documento, indica claramente que no se encuentra en el texto.\n");
-        sb.append("- Responde de forma concisa y clara, cita secciones del documento si es apropiado.\n\n");
+        sb.append("- Responde en español.\n");
+        sb.append("- Usa exclusivamente la información del documento.\n");
+        sb.append("- Si la respuesta no aparece en el documento, dilo claramente.\n");
+        sb.append("- Mantén el contexto de la conversación anterior.\n");
+        sb.append("- Explica los conceptos de forma clara y pedagógica.\n");
+        sb.append("- No inventes información ni uses conocimiento externo cuando el documento no lo respalde.\n\n");
         sb.append("Documento:\n");
         sb.append(documentText);
-        sb.append("\n\nPregunta del usuario:\n");
+        sb.append("\n\nHistorial de la conversación reciente:\n");
+        if (recentConversationLines == null || recentConversationLines.isEmpty()) {
+            sb.append("(sin historial previo)\n");
+        } else {
+            for (String line : recentConversationLines) {
+                sb.append(line).append("\n");
+            }
+        }
+        sb.append("\nPregunta actual del usuario:\n");
         sb.append(userQuestion);
         sb.append("\n\nRespuesta esperada:\n");
         return sb.toString();

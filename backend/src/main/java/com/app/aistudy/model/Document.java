@@ -1,5 +1,6 @@
 package com.app.aistudy.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
@@ -55,6 +56,10 @@ public class Document {
 
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Summary> summaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Conversation> conversations = new ArrayList<>();
 
     public Document() {
         super();
@@ -171,5 +176,13 @@ public class Document {
 
     public void setSummaries(List<Summary> summaries) {
         this.summaries = summaries;
+    }
+
+    public List<Conversation> getConversations() {
+        return conversations;
+    }
+
+    public void setConversations(List<Conversation> conversations) {
+        this.conversations = conversations;
     }
 }

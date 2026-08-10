@@ -62,10 +62,14 @@ public class AIServiceImpl implements AIService {
 
     @Override
     public String chat(String context, String question) {
+        return generateChatResponse(promptBuilder.buildChatPrompt(context, question));
+    }
 
+    @Override
+    public String generateChatResponse(String promptText) {
         return askAI(
                 "Responde únicamente usando el documento.",
-                promptBuilder.buildChatPrompt(context, question)
+                promptText
         );
     }
 }
