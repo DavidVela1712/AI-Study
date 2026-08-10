@@ -11,6 +11,9 @@ import com.app.aistudy.resources.QuestionRepository;
 import com.app.aistudy.resources.QuizRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -18,7 +21,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class QuizServiceImpl implements QuizService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private QuizRepository quizRepository;
@@ -68,11 +75,14 @@ public class QuizServiceImpl implements QuizService {
             quizRepository.delete(quiz);
         });
 
+        // Fuerza a Hibernate a ejecutar los DELETE antes del INSERT
+        entityManager.flush();
+
         String quizContent = aiService.generateTest(document.getExtractedText());
-        
+
         Quiz quiz = createQuizWithQuestions(quizContent, document);
         Quiz savedQuiz = quizRepository.save(quiz);
-        
+
         return convertToResponseDTO(savedQuiz);
     }
 

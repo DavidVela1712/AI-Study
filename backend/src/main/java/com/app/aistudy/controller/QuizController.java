@@ -22,8 +22,11 @@ public class QuizController {
             QuizResponseDTO response = quizService.generateQuiz(quizDTO.getDocumentId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -34,8 +37,11 @@ public class QuizController {
             QuizResponseDTO response = quizService.regenerateQuiz(quizDTO.getDocumentId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -49,8 +55,11 @@ public class QuizController {
             }
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -61,8 +70,11 @@ public class QuizController {
             quizService.deleteByDocument(documentId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }

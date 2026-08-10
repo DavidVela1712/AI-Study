@@ -27,34 +27,67 @@ public class PromptBuilder {
     /** Build a prompt to generate flashcards (10-20 unique items). */
     public String buildFlashcardsPrompt(String text) {
         StringBuilder sb = new StringBuilder();
+
         sb.append("Eres un asistente experto en crear tarjetas didácticas (flashcards) a partir de un texto.\n");
         sb.append("Instrucciones:\n");
         sb.append("- Genera entre 10 y 20 flashcards únicas relacionadas con el contenido.\n");
         sb.append("- Cada flashcard debe tener una Pregunta y una Respuesta clara y auto-contenida.\n");
         sb.append("- No repitas conceptos ni preguntas con la misma respuesta.\n");
         sb.append("- Utiliza lenguaje directo y conciso.\n");
-        sb.append("- Devuelve la salida en un formato plano que sea fácil de parsear: cada flashcard separada por una línea en blanco, con 'Question: <...>' y 'Answer: <...>'.\n\n");
+        sb.append("- Utiliza únicamente la información del texto proporcionado.\n");
+        sb.append("- No inventes información ni utilices conocimiento externo.\n");
+        sb.append("- Devuelve únicamente las flashcards, sin introducciones ni comentarios adicionales.\n");
+        sb.append("- Cada flashcard debe estar separada por una línea en blanco.\n");
+        sb.append("- Utiliza EXACTAMENTE los textos 'Pregunta:' y 'Respuesta:' como etiquetas.\n\n");
+
         sb.append("Texto a analizar:\n");
         sb.append(text);
-        sb.append("\n\nFormato esperado:\n");
-        sb.append("Question: ¿... ?\nAnswer: ...\n\nQuestion: ...\nAnswer: ...\n");
+
+        sb.append("\n\nFormato obligatorio:\n");
+        sb.append("Pregunta: ¿Pregunta 1?\n");
+        sb.append("Respuesta: Respuesta 1\n\n");
+        sb.append("Pregunta: ¿Pregunta 2?\n");
+        sb.append("Respuesta: Respuesta 2\n");
+
         return sb.toString();
     }
 
     /** Build a prompt to generate a quiz of 10 questions with 4 options each, one correct. */
     public String buildQuizPrompt(String text) {
         StringBuilder sb = new StringBuilder();
+
         sb.append("Eres un asistente experto en generar exámenes de opción múltiple de alta calidad.\n");
         sb.append("Instrucciones:\n");
         sb.append("- Genera exactamente 10 preguntas.\n");
-        sb.append("- Cada pregunta debe tener 4 opciones: A, B, C, D.\n");
-        sb.append("- Indica claramente cuál es la respuesta correcta para cada pregunta.\n");
-        sb.append("- Evita ambigüedades. Las opciones deben ser mutuamente excluyentes cuando sea posible.\n");
-        sb.append("- Usa únicamente la información del texto. No agregues información externa.\n");
-        sb.append("- Salida en formato plano fácil de parsear por el backend: para cada pregunta usar:\n");
-        sb.append("Question: <texto>\nA) <opA>\nB) <opB>\nC) <opC>\nD) <opD>\nCorrect: <A|B|C|D>\n\n");
+        sb.append("- Cada pregunta debe tener exactamente 4 opciones: A, B, C y D.\n");
+        sb.append("- Debe existir una única respuesta correcta por pregunta.\n");
+        sb.append("- Indica claramente cuál es la respuesta correcta.\n");
+        sb.append("- Evita ambigüedades.\n");
+        sb.append("- Las opciones deben ser plausibles y estar relacionadas con el contenido.\n");
+        sb.append("- Utiliza únicamente la información del texto proporcionado.\n");
+        sb.append("- No inventes información ni utilices conocimiento externo.\n");
+        sb.append("- Devuelve únicamente las preguntas, sin introducciones ni comentarios adicionales.\n");
+        sb.append("- Utiliza EXACTAMENTE las etiquetas 'Pregunta:' y 'Correcta:'.\n");
+        sb.append("- La etiqueta 'Correcta:' debe contener únicamente A, B, C o D.\n\n");
+
         sb.append("Texto a analizar:\n");
         sb.append(text);
+
+        sb.append("\n\nFormato obligatorio:\n");
+        sb.append("Pregunta: ¿Pregunta 1?\n");
+        sb.append("A) Primera opción\n");
+        sb.append("B) Segunda opción\n");
+        sb.append("C) Tercera opción\n");
+        sb.append("D) Cuarta opción\n");
+        sb.append("Correcta: A\n\n");
+
+        sb.append("Pregunta: ¿Pregunta 2?\n");
+        sb.append("A) Primera opción\n");
+        sb.append("B) Segunda opción\n");
+        sb.append("C) Tercera opción\n");
+        sb.append("D) Cuarta opción\n");
+        sb.append("Correcta: C\n");
+
         return sb.toString();
     }
 
