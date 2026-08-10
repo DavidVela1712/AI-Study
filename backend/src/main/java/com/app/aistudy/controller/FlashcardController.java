@@ -23,8 +23,11 @@ public class FlashcardController {
             List<FlashcardResponseDTO> response = flashcardService.generateFlashcards(flashcardDTO.getDocumentId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -35,8 +38,11 @@ public class FlashcardController {
             List<FlashcardResponseDTO> response = flashcardService.regenerateFlashcards(flashcardDTO.getDocumentId());
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -47,8 +53,11 @@ public class FlashcardController {
             List<FlashcardResponseDTO> response = flashcardService.findByDocument(documentId);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }
@@ -59,8 +68,11 @@ public class FlashcardController {
             flashcardService.deleteByDocument(documentId);
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
+            e.printStackTrace();
+
             Map<String, String> error = new HashMap<>();
-            error.put("error", e.getMessage());
+            error.put("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName());
+
             return ResponseEntity.badRequest().body(error);
         }
     }

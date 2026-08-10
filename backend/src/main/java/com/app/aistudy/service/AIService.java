@@ -9,4 +9,6 @@ public interface AIService {
     String generateFlashcards(String text);
 
     String chat(String text, String userMessage);
+
+    String generateChatResponse(String promptText);
 }
