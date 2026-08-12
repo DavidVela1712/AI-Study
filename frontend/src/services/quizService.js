@@ -18,3 +18,18 @@ export async function getQuizByDocument(documentId) {
 export async function deleteQuizByDocument(documentId) {
   await axiosClient.delete(`/quizzes/document/${documentId}`)
 }
+
+export async function createQuizAttempt(quizId, answers) {
+  const response = await axiosClient.post(`/quizzes/${quizId}/attempts`, { quizId, answers })
+  return response.data
+}
+
+export async function getQuizAttempts(quizId) {
+  const response = await axiosClient.get(`/quizzes/${quizId}/attempts`)
+  return response.data
+}
+
+export async function getQuizAttemptById(attemptId) {
+  const response = await axiosClient.get(`/quiz-attempts/${attemptId}`)
+  return response.data
+}

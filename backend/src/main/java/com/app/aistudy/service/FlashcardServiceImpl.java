@@ -109,7 +109,7 @@ public class FlashcardServiceImpl implements FlashcardService {
         String currentAnswer = null;
         
         for (String line : lines) {
-            if (line.startsWith("Pregunta:") || line.startsWith("Q:")) {
+            if (line.startsWith("Pregunta:") || line.startsWith("Q:") || line.startsWith("Question:")) {
                 if (currentQuestion != null && currentAnswer != null) {
                     Flashcard flashcard = new Flashcard();
                     flashcard.setDocument(document);
@@ -118,10 +118,10 @@ public class FlashcardServiceImpl implements FlashcardService {
                     flashcard.setCreatedAt(new Timestamp(System.currentTimeMillis()));
                     flashcards.add(flashcard);
                 }
-                currentQuestion = line.replaceFirst("^(Pregunta:|Q:\\s*)", "").trim();
+                currentQuestion = line.replaceFirst("^(Pregunta:|Q:|Question:\\s*)", "").trim();
                 currentAnswer = null;
-            } else if (line.startsWith("Respuesta:") || line.startsWith("A:")) {
-                currentAnswer = line.replaceFirst("^(Respuesta:|A:\\s*)", "").trim();
+            } else if (line.startsWith("Respuesta:") || line.startsWith("A:") || line.startsWith("Answer:")) {
+                currentAnswer = line.replaceFirst("^(Respuesta:|A:|Answer:\\s*)", "").trim();
             }
         }
         
