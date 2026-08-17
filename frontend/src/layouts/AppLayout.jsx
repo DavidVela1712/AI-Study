@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Home, Layers, Settings, SunMoon, User, Search, Sparkles } from 'lucide-react'
+import { Home, Layers, Settings, SunMoon, User, Search, Sparkles, LogOut } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 import './AppLayout.css'
 
 function AppLayout() {
   const location = useLocation()
+  const { user, logout } = useAuth()
   const [theme, setTheme] = useState(() => {
     const savedTheme = window.localStorage.getItem('ai-study-theme')
     return savedTheme || 'dark'
@@ -25,6 +27,10 @@ function AppLayout() {
   )
 
   const activePath = location.pathname
+
+  const handleLogout = () => {
+    logout()
+  }
 
   return (
     <div className="app-shell">
@@ -72,9 +78,12 @@ function AppLayout() {
               <User size={20} />
             </div>
             <div>
-              <p className="sidebar__profile-name">David García</p>
+              <p className="sidebar__profile-name">{user?.name || 'Usuario'}</p>
               <p className="sidebar__profile-role">Estudiante</p>
             </div>
+            <button onClick={handleLogout} className="logout-button" title="Cerrar sesión">
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>

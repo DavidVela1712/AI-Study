@@ -124,6 +124,22 @@
   font-size: 0.9rem;
 }
 
+.logout-button {
+  margin-left: auto;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.logout-button:hover {
+  background: var(--surface-secondary);
+  color: var(--text-primary);
+}
+
 .app-main {
   display: flex;
   flex-direction: column;

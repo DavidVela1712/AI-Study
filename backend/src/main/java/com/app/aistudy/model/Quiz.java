@@ -14,8 +14,8 @@ public class Quiz {
     @Column(name = "id_quiz")
     private Integer idQuiz;
 
-    @OneToOne
-    @JoinColumn(name = "document_id", nullable = false, unique = true)
+    @ManyToOne
+    @JoinColumn(name = "document_id", nullable = false)
     private Document document;
 
     @OneToMany(

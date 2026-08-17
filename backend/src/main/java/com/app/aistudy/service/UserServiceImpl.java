@@ -5,6 +5,7 @@ import com.app.aistudy.dto.UserResponseDTO;
 import com.app.aistudy.model.User;
 import com.app.aistudy.resources.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -17,6 +18,9 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private UserRepository repository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public UserResponseDTO convertToResponseDTO(User user) {
         UserResponseDTO savedUser = new UserResponseDTO();
@@ -28,20 +32,18 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public User login(User user) {
-        System.out.println("Usuario recibido en login: "+ user);
-
         if (user.getEmail() == null || user.getPassword() == null){
             throw new RuntimeException("Correo o contraseña vacío");
         }
 
-        User userDB = repository.findUserByEmail(user.getEmail());
-        System.out.println("Usuario encontrado: "+ userDB);
+        User userDB = repository.findUserByEmail(user.getEmail())
+                .orElse(null);
 
         if (userDB == null){
             throw new RuntimeException("Usuario no encontrado");
         }
 
-        if (!user.getPassword().equals(userDB.getPassword())){
+        if (!passwordEncoder.matches(user.getPassword(), userDB.getPassword())){
             throw new RuntimeException("Contraseña incorrecta");
         }
         return userDB;
@@ -56,6 +58,7 @@ public class UserServiceImpl implements UserService{
         }
         return usersDTO;
     }
+
     @Override
     public UserResponseDTO findUser(Integer id) {
         User user = repository.findById(id)
@@ -74,7 +77,7 @@ public class UserServiceImpl implements UserService{
             user.setEmail(newDataUser.getEmail());
         }
         if (newDataUser.getPassword()!=null) {
-            user.setPassword(newDataUser.getPassword());
+            user.setPassword(passwordEncoder.encode(newDataUser.getPassword()));
         }
         return convertToResponseDTO(repository.save(user));
     }
@@ -92,15 +95,19 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserResponseDTO createUser(UserDTO user) {
-        System.out.println(user.toString());
-
         if (user.getPassword() == null || user.getEmail() == null){
             throw new RuntimeException("Correo o contraseña no pueden ser null");
         }
+
+        // Check if user already exists
+        if (repository.findUserByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("Ya existe un usuario con este correo electrónico");
+        }
+
         User newUser = new User();
         newUser.setName(user.getName());
         newUser.setEmail(user.getEmail());
-        newUser.setPassword(user.getPassword());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return convertToResponseDTO(repository.save(newUser));
     }

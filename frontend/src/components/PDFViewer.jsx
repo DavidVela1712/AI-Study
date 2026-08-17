@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { pdfjs, Document, Page } from 'react-pdf'
 import { AlertTriangle, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, FileText } from 'lucide-react'
+import axiosClient from '../api/axiosClient'
 import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import './PDFViewer.css'
@@ -13,14 +14,56 @@ function PDFViewer({ fileUrl }) {
   const [scale, setScale] = useState(1.0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [pdfData, setPdfData] = useState(null)
+  const blobUrlRef = useRef(null)
+
+  useEffect(() => {
+    async function loadPdf() {
+      if (!fileUrl) return
+      
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Load PDF using axios with JWT
+        const response = await axiosClient.get(fileUrl, {
+          responseType: 'blob'
+        })
+        
+        // Create blob URL
+        const blob = new Blob([response.data], { type: 'application/pdf' })
+        const blobUrl = URL.createObjectURL(blob)
+        blobUrlRef.current = blobUrl
+        setPdfData(blobUrl)
+      } catch (err) {
+        console.error('PDF load error:', err)
+        if (err.response?.status === 403) {
+          setError('No tienes permiso para ver este documento')
+        } else {
+          setError('No se pudo cargar el PDF')
+        }
+        setLoading(false)
+      }
+    }
+
+    loadPdf()
+
+    // Cleanup blob URL on unmount
+    return () => {
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current)
+      }
+    }
+  }, [fileUrl])
 
   function onDocumentLoadSuccess({ numPages }) {
     setNumPages(numPages)
     setLoading(false)
   }
 
-  function onDocumentLoadError() {
-    setError('No se pudo cargar el PDF')
+  function onDocumentLoadError(error) {
+    console.error('PDF render error:', error)
+    setError('No se pudo renderizar el PDF')
     setLoading(false)
   }
 
@@ -118,22 +161,24 @@ function PDFViewer({ fileUrl }) {
             <p>Cargando documento...</p>
           </div>
         )}
-        <Document
-          file={fileUrl}
-          onLoadSuccess={onDocumentLoadSuccess}
-          onLoadError={onDocumentLoadError}
-          loading={<div className="pdf-viewer__loading">
-            <div className="loading-spinner"></div>
-            <p>Cargando documento...</p>
-          </div>}
-        >
-          <Page
-            pageNumber={pageNumber}
-            scale={scale}
-            renderTextLayer={false}
-            renderAnnotationLayer={false}
-          />
-        </Document>
+        {pdfData && (
+          <Document
+            file={pdfData}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={<div className="pdf-viewer__loading">
+              <div className="loading-spinner"></div>
+              <p>Cargando documento...</p>
+            </div>}
+          >
+            <Page
+              pageNumber={pageNumber}
+              scale={scale}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+            />
+          </Document>
+        )}
       </div>
     </div>
   )

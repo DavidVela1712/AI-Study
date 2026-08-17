@@ -66,10 +66,7 @@ public class QuizServiceImpl implements QuizService {
             throw new RuntimeException("El documento no tiene texto extraído para generar un test");
         }
 
-        quizRepository.findByDocument(document).ifPresent(quiz -> {
-            throw new RuntimeException("Ya existe un test para este documento. Usa la función de regenerar para actualizarlo.");
-        });
-
+        // Now we allow multiple quizzes per document, so no need to check for existing quiz
         String quizContent = aiService.generateTest(document.getExtractedText());
         
         Quiz quiz = createQuizWithQuestions(quizContent, document);
@@ -86,29 +83,12 @@ public class QuizServiceImpl implements QuizService {
             throw new RuntimeException("El documento no tiene texto extraído para generar un test");
         }
 
-        // Get existing quiz or create new one
-        Quiz quiz = quizRepository.findByDocument(document)
-                .orElseGet(() -> {
-                    Quiz newQuiz = new Quiz();
-                    newQuiz.setDocument(document);
-                    newQuiz.setTitle("Test del documento");
-                    newQuiz.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-                    return quizRepository.save(newQuiz);
-                });
-
-        // Delete only the questions, NOT the quiz (to preserve attempt history)
-        questionRepository.deleteByQuiz(quiz);
-
-        // Force Hibernate to execute DELETE before INSERT
-        entityManager.flush();
-
+        // Generate new quiz content via AI
         String quizContent = aiService.generateTest(document.getExtractedText());
 
-        // Parse and add new questions to existing quiz
-        List<Question> newQuestions = parseQuizContent(quizContent, quiz);
-        quiz.setQuestions(newQuestions);
-
-        Quiz savedQuiz = quizRepository.save(quiz);
+        // Create a NEW quiz instead of reusing the existing one
+        Quiz newQuiz = createQuizWithQuestions(quizContent, document);
+        Quiz savedQuiz = quizRepository.save(newQuiz);
 
         return convertToResponseDTO(savedQuiz);
     }
@@ -116,7 +96,7 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public QuizResponseDTO findByDocument(Integer documentId) {
         Document document = findDocumentForCurrentUser(documentId);
-        return quizRepository.findByDocument(document)
+        return quizRepository.findFirstByDocumentOrderByCreatedAtDesc(document)
                 .map(this::convertToResponseDTO)
                 .orElse(null);
     }
@@ -124,10 +104,13 @@ public class QuizServiceImpl implements QuizService {
     @Override
     public void deleteByDocument(Integer documentId) {
         Document document = findDocumentForCurrentUser(documentId);
-        quizRepository.findByDocument(document).ifPresent(quiz -> {
+
+        List<Quiz> quizzes = quizRepository.findByDocumentOrderByCreatedAtDesc(document);
+
+        for (Quiz quiz : quizzes) {
             questionRepository.deleteByQuiz(quiz);
             quizRepository.delete(quiz);
-        });
+        }
     }
 
     private Document findDocumentForCurrentUser(Integer documentId) {
