@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface SummaryRepository extends JpaRepository<Summary, Integer> {
     Optional<Summary> findByDocument(Document document);
+    boolean existsByDocument(Document document);
+    void deleteByDocument(Document document);
 }

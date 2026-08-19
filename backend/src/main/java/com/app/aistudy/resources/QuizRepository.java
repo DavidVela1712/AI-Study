@@ -11,4 +11,5 @@ public interface QuizRepository extends JpaRepository<Quiz, Integer> {
     Optional<Quiz> findFirstByDocumentOrderByCreatedAtDesc(Document document);
     List<Quiz> findByDocumentOrderByCreatedAtDesc(Document document);
     void deleteByDocument(Document document);
+    boolean existsByDocument(Document document);
 }

@@ -8,12 +8,15 @@ import { useToast } from '../context/ToastContext'
 function SummarySection({ document, studyStatus }) {
   const { addToast } = useToast()
 
+  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === null || studyStatus === undefined
+
   const { status, data: summary, error, generate, regenerate, remove, reload } = useResource({
     documentId: document ? document.idDocument : null,
     fetchFn: getSummaryByDocument,
     generateFn: generateSummary,
     regenerateFn: regenerateSummary,
     deleteFn: deleteSummary,
+    enabled: shouldLoad,
   })
 
   const handleGenerate = useCallback(async () => {
@@ -49,10 +52,10 @@ function SummarySection({ document, studyStatus }) {
 
   // Auto-reload when studyStatus changes to COMPLETED
   useEffect(() => {
-    if (studyStatus === 'COMPLETED' && status === 'empty') {
+    if (studyStatus?.summary === 'COMPLETED' && status === 'empty') {
       reload()
     }
-  }, [studyStatus, status, reload])
+  }, [studyStatus?.summary, status, reload])
 
   return (
     <div className="summary-section">
@@ -104,6 +107,13 @@ function SummarySection({ document, studyStatus }) {
           <button className="btn btn-primary" onClick={handleGenerate}>
             Generar resumen
           </button>
+        </div>
+      )}
+
+      {status === 'error' && error?.response?.status !== 404 && studyStatus !== 'PROCESSING' && (
+        <div className="summary-section__error">
+          <p>Error al cargar el resumen.</p>
+          <button className="btn btn-secondary" onClick={reload}>Reintentar</button>
         </div>
       )}
 

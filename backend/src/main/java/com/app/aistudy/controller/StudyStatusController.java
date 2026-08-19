@@ -17,4 +17,10 @@ public class StudyStatusController {
     public ResponseEntity<StudyStatusDTO> getStudyStatus(@PathVariable Integer documentId) {
         return ResponseEntity.ok(studyStatusService.getStudyStatus(documentId));
     }
+
+    @PostMapping("/{documentId}/study-status/generate")
+    public ResponseEntity<Void> triggerGeneration(@PathVariable Integer documentId) {
+        studyStatusService.triggerGeneration(documentId);
+        return ResponseEntity.ok().build();
+    }
 }

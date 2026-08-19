@@ -7,13 +7,14 @@ export default function useResource({
   generateFn,
   regenerateFn,
   deleteFn,
+  enabled = true,
 }) {
   const [status, setStatus] = useState('idle') // 'idle'|'loading'|'success'|'empty'|'error'
   const [data, setData] = useState(null)
   const [error, setError] = useState(null)
 
   const load = useCallback(async () => {
-    if (!documentId) {
+    if (!documentId || !enabled) {
       setStatus('idle')
       setData(null)
       return
@@ -40,7 +41,7 @@ export default function useResource({
         setData(null)
       }
     }
-  }, [documentId, fetchFn])
+  }, [documentId, fetchFn, enabled])
 
   useEffect(() => {
     load()

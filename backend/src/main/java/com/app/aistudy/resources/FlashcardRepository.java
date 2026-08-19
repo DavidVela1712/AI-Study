@@ -9,4 +9,5 @@ import java.util.List;
 public interface FlashcardRepository extends JpaRepository<Flashcard, Integer> {
     List<Flashcard> findByDocument(Document document);
     void deleteByDocument(Document document);
+    boolean existsByDocument(Document document);
 }

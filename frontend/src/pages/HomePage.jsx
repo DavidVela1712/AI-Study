@@ -12,9 +12,6 @@ import {
   updateSubject,
 } from '../services/subjectService'
 import { getDocumentsBySubject } from '../services/documentService'
-import { getSummaryByDocument } from '../services/summaryService'
-import { getFlashcardsByDocument } from '../services/flashcardService'
-import { getQuizByDocument } from '../services/quizService'
 import './HomePage.css'
 
 function HomePage() {
@@ -68,27 +65,12 @@ function HomePage() {
       setDocumentsBySubject(documentsMap)
       setRecentDocuments(recent)
 
-      const results = await Promise.all(
-        allDocuments.map(async (document) => {
-          const [summaryResult, flashcardsResult, quizResult] = await Promise.allSettled([
-            getSummaryByDocument(document.idDocument),
-            getFlashcardsByDocument(document.idDocument),
-            getQuizByDocument(document.idDocument),
-          ])
-          return {
-            summary: summaryResult.status === 'fulfilled',
-            flashcards: flashcardsResult.status === 'fulfilled',
-            quiz: quizResult.status === 'fulfilled',
-          }
-        })
-      )
-
       setStats({
         subjects: subjectsData.length,
         documents: allDocuments.length,
-        summaries: results.filter((item) => item.summary).length,
-        flashcards: results.filter((item) => item.flashcards).length,
-        tests: results.filter((item) => item.quiz).length,
+        summaries: allDocuments.filter((doc) => doc.hasSummary).length,
+        flashcards: allDocuments.filter((doc) => doc.hasFlashcards).length,
+        tests: allDocuments.filter((doc) => doc.hasQuiz).length,
       })
     } catch {
       setError('No se pudieron cargar las asignaturas.')
@@ -137,7 +119,13 @@ function HomePage() {
 
     try {
       await deleteSubject(subject.idSubject)
-      await loadSubjects()
+      setSubjects(prev => prev.filter(s => s.idSubject !== subject.idSubject))
+      setDocumentsBySubject(prev => {
+        const updated = { ...prev }
+        delete updated[subject.idSubject]
+        return updated
+      })
+      setRecentDocuments(prev => prev.filter(doc => doc.subjectId !== subject.idSubject))
     } catch {
       setError('No se pudo eliminar la asignatura.')
     }

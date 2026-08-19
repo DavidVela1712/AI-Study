@@ -5,12 +5,17 @@ import com.app.aistudy.model.Document;
 import com.app.aistudy.model.Subject;
 import com.app.aistudy.resources.DocumentRepository;
 import com.app.aistudy.resources.SubjectRepository;
+import com.app.aistudy.resources.SummaryRepository;
+import com.app.aistudy.resources.FlashcardRepository;
+import com.app.aistudy.resources.QuizRepository;
+import com.app.aistudy.resources.StudyProgressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,6 +41,18 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Autowired
     private DocumentProcessingService documentProcessingService;
+
+    @Autowired
+    private SummaryRepository summaryRepository;
+
+    @Autowired
+    private FlashcardRepository flashcardRepository;
+
+    @Autowired
+    private QuizRepository quizRepository;
+
+    @Autowired
+    private StudyProgressRepository studyProgressRepository;
 
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
@@ -111,6 +128,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    @Transactional
     public void delete(Integer id) {
         Document document = documentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Documento no encontrado"));
@@ -130,6 +148,8 @@ public class DocumentServiceImpl implements DocumentService {
         } catch (IOException e) {
             System.out.println("Error al eliminar el archivo físico: " + e.getMessage());
         }
+
+        studyProgressRepository.findByDocument(document).ifPresent(studyProgressRepository::delete);
 
         documentRepository.delete(document);
     }
@@ -177,6 +197,9 @@ public class DocumentServiceImpl implements DocumentService {
         responseDTO.setExtractedText(document.getExtractedText());
         responseDTO.setProcessingStatus(document.getProcessingStatus() != null ? document.getProcessingStatus().toString() : null);
         responseDTO.setProcessedAt(document.getProcessedAt());
+        responseDTO.setHasSummary(summaryRepository.existsByDocument(document));
+        responseDTO.setHasFlashcards(flashcardRepository.existsByDocument(document));
+        responseDTO.setHasQuiz(quizRepository.existsByDocument(document));
         return responseDTO;
     }
 }

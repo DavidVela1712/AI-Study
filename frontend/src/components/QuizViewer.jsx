@@ -14,11 +14,14 @@ function QuizViewer({ document, studyStatus }) {
   const [isSaving, setIsSaving] = useState(false)
   const { addToast } = useToast()
 
+  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === null || studyStatus === undefined
+
   const { status, data: quiz, error, generate, regenerate, reload } = useResource({
     documentId: document ? document.idDocument : null,
     fetchFn: getQuizByDocument,
     generateFn: generateQuiz,
     regenerateFn: regenerateQuiz,
+    enabled: shouldLoad,
   })
 
   // Reset state when quiz changes
@@ -213,7 +216,7 @@ function QuizViewer({ document, studyStatus }) {
     )
   }
 
-  if (status === 'error') {
+  if (status === 'error' && error?.response?.status !== 404) {
     return (
       <div className="quiz-viewer quiz-viewer--error">
         <p>Error al cargar el test.</p>

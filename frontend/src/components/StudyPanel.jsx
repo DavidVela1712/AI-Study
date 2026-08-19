@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import SummarySection from './SummarySection'
 import FlashcardViewer from './FlashcardViewer'
 import QuizViewer from './QuizViewer'
 import ChatPanel from './ChatPanel'
-import { getStudyStatus } from '../services/studyStatusService'
+import { getStudyStatus, triggerGeneration } from '../services/studyStatusService'
 import './StudyPanel.css'
 
 function StudyPanel({ document }) {
   const [activeTab, setActiveTab] = useState('summary')
   const [studyStatus, setStudyStatus] = useState(null)
+  const generationTriggeredRef = useRef(false)
 
   useEffect(() => {
     if (!document) return
@@ -20,6 +21,23 @@ function StudyPanel({ document }) {
       try {
         const status = await getStudyStatus(document.idDocument)
         setStudyStatus(status)
+
+        // Trigger generation if needed and not already triggered
+        if (!generationTriggeredRef.current) {
+          const needsGeneration = 
+            status.summary === 'PENDING' || 
+            status.flashcards === 'PENDING' || 
+            status.quiz === 'PENDING'
+          
+          if (needsGeneration) {
+            generationTriggeredRef.current = true
+            try {
+              await triggerGeneration(document.idDocument)
+            } catch (error) {
+              console.error('Error triggering generation:', error)
+            }
+          }
+        }
 
         // Check if all resources are completed or failed
         const allDone = 

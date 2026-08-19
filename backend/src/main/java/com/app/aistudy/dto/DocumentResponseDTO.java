@@ -15,6 +15,9 @@ public class DocumentResponseDTO {
     private String extractedText;
     private String processingStatus;
     private Timestamp processedAt;
+    private Boolean hasSummary;
+    private Boolean hasFlashcards;
+    private Boolean hasQuiz;
 
     public DocumentResponseDTO() {
         super();
@@ -106,5 +109,29 @@ public class DocumentResponseDTO {
 
     public void setProcessedAt(Timestamp processedAt) {
         this.processedAt = processedAt;
+    }
+
+    public Boolean getHasSummary() {
+        return hasSummary;
+    }
+
+    public void setHasSummary(Boolean hasSummary) {
+        this.hasSummary = hasSummary;
+    }
+
+    public Boolean getHasFlashcards() {
+        return hasFlashcards;
+    }
+
+    public void setHasFlashcards(Boolean hasFlashcards) {
+        this.hasFlashcards = hasFlashcards;
+    }
+
+    public Boolean getHasQuiz() {
+        return hasQuiz;
+    }
+
+    public void setHasQuiz(Boolean hasQuiz) {
+        this.hasQuiz = hasQuiz;
     }
 }

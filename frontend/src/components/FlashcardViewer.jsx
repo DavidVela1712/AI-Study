@@ -10,11 +10,14 @@ function FlashcardViewer({ document, studyStatus }) {
   const [showAnswer, setShowAnswer] = useState(false)
   const { addToast } = useToast()
 
+  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === null || studyStatus === undefined
+
   const { status, data: flashcards, error, generate, regenerate, reload } = useResource({
     documentId: document ? document.idDocument : null,
     fetchFn: getFlashcardsByDocument,
     generateFn: generateFlashcards,
     regenerateFn: regenerateFlashcards,
+    enabled: shouldLoad,
   })
 
   const handleNext = useCallback(() => {
@@ -89,7 +92,7 @@ function FlashcardViewer({ document, studyStatus }) {
     )
   }
 
-  if (status === 'error') {
+  if (status === 'error' && error?.response?.status !== 404) {
     return (
       <div className="flashcard-viewer flashcard-viewer--error">
         <p>Error al cargar las flashcards.</p>
