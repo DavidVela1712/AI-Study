@@ -37,6 +37,10 @@ public class SummaryServiceImpl implements SummaryService {
 
         Optional<Summary> existingSummary = summaryRepository.findByDocument(document);
         if (existingSummary.isPresent()) {
+            Summary summary = existingSummary.get();
+            if (summary.getProcessingStatus() == com.app.aistudy.model.ProcessingStatus.PROCESSING) {
+                throw new RuntimeException("El resumen ya está siendo generado");
+            }
             throw new RuntimeException("Ya existe un resumen para este documento. Usa la función de regenerar para actualizarlo.");
         }
 
@@ -45,6 +49,7 @@ public class SummaryServiceImpl implements SummaryService {
         Summary summary = new Summary();
         summary.setDocument(document);
         summary.setContent(summaryContent);
+        summary.setProcessingStatus(com.app.aistudy.model.ProcessingStatus.COMPLETED);
         Timestamp now = new Timestamp(System.currentTimeMillis());
         summary.setCreatedAt(now);
         summary.setUpdatedAt(now);

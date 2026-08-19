@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { useToast } from '../context/ToastContext'
 import { ArrowLeft, ArrowRight, Eye, EyeOff, RefreshCcw, Zap } from 'lucide-react'
 import './FlashcardViewer.css'
 import useResource from '../hooks/useResource'
 import { getFlashcardsByDocument, generateFlashcards, regenerateFlashcards } from '../services/flashcardService'
 
-function FlashcardViewer({ document }) {
+function FlashcardViewer({ document, studyStatus }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
   const { addToast } = useToast()
@@ -49,11 +49,27 @@ function FlashcardViewer({ document }) {
     }
   }, [regenerate, addToast])
 
-  if (status === 'loading') {
+  // Auto-reload when studyStatus changes to COMPLETED
+  useEffect(() => {
+    if (studyStatus === 'COMPLETED' && status === 'empty') {
+      reload()
+    }
+  }, [studyStatus, status, reload])
+
+  if (status === 'loading' || studyStatus === 'PROCESSING') {
     return (
       <div className="flashcard-viewer flashcard-viewer--loading">
         <div className="loading-spinner"></div>
         <p>Generando flashcards...</p>
+      </div>
+    )
+  }
+
+  if (studyStatus === 'FAILED') {
+    return (
+      <div className="flashcard-viewer flashcard-viewer--error">
+        <p>Error al generar las flashcards automáticamente.</p>
+        <button className="btn btn-primary" onClick={handleGenerate}>Reintentar</button>
       </div>
     )
   }

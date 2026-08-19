@@ -1,11 +1,11 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { RotateCcw, Trash2 } from 'lucide-react'
 import './SummarySection.css'
 import useResource from '../hooks/useResource'
 import { getSummaryByDocument, generateSummary, regenerateSummary, deleteSummary } from '../services/summaryService'
 import { useToast } from '../context/ToastContext'
 
-function SummarySection({ document }) {
+function SummarySection({ document, studyStatus }) {
   const { addToast } = useToast()
 
   const { status, data: summary, error, generate, regenerate, remove, reload } = useResource({
@@ -47,6 +47,13 @@ function SummarySection({ document }) {
     }
   }, [remove, addToast])
 
+  // Auto-reload when studyStatus changes to COMPLETED
+  useEffect(() => {
+    if (studyStatus === 'COMPLETED' && status === 'empty') {
+      reload()
+    }
+  }, [studyStatus, status, reload])
+
   return (
     <div className="summary-section">
       <div className="summary-section__header">
@@ -68,14 +75,21 @@ function SummarySection({ document }) {
         </div>
       </div>
 
-      {status === 'loading' && (
+      {(status === 'loading' || studyStatus === 'PROCESSING') && (
         <div className="summary-section__loading">
           <div className="loading-spinner"></div>
           <p>Generando contenido con IA...</p>
         </div>
       )}
 
-      {status === 'success' && summary && (
+      {studyStatus === 'FAILED' && (
+        <div className="summary-section__error">
+          <p>Error al generar el resumen automáticamente.</p>
+          <button className="btn btn-primary" onClick={handleGenerate}>Reintentar</button>
+        </div>
+      )}
+
+      {status === 'success' && summary && studyStatus !== 'PROCESSING' && (
         <div className="summary-section__body">
           {summary.content.split('\n').map((line, index) => (
             <p key={index}>{line}</p>
@@ -83,7 +97,7 @@ function SummarySection({ document }) {
         </div>
       )}
 
-      {status === 'empty' && (
+      {status === 'empty' && studyStatus !== 'PROCESSING' && studyStatus !== 'FAILED' && (
         <div className="summary-section__empty">
           <p>No existe ningún resumen para este documento.</p>
           <p>Genera un resumen cuando lo necesites.</p>
@@ -93,7 +107,7 @@ function SummarySection({ document }) {
         </div>
       )}
 
-      {status === 'error' && (
+      {status === 'error' && studyStatus !== 'PROCESSING' && (
         <div className="summary-section__error">
           <p>Error al cargar el resumen.</p>
           <button className="btn btn-secondary" onClick={reload}>Reintentar</button>

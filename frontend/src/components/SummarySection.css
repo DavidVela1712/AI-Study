@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .summary-section__header {

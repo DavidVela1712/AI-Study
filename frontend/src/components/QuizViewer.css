@@ -3,6 +3,8 @@
   flex-direction: column;
   height: 100%;
   gap: 1rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .quiz-viewer--loading,
@@ -72,13 +74,13 @@
 }
 
 .quiz-nav-item--answered {
-  border-color: var(--success);
-  color: var(--success);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .quiz-nav-item--answered.quiz-nav-item--current {
-  background: var(--success);
-  border-color: var(--success);
+  background: var(--primary);
+  border-color: var(--primary);
   color: white;
 }
 
@@ -173,8 +175,8 @@
 }
 
 .quiz-option--correct {
-  border-color: var(--success);
-  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
 }
 
 .quiz-option--incorrect {
@@ -202,8 +204,8 @@
 }
 
 .quiz-option--correct .quiz-option__label {
-  background: var(--success);
-  border-color: var(--success);
+  background: var(--primary);
+  border-color: var(--primary);
   color: white;
 }
 
@@ -225,7 +227,7 @@
 }
 
 .quiz-option--correct .quiz-option__icon {
-  color: var(--success);
+  color: var(--primary);
 }
 
 .quiz-option--incorrect .quiz-option__icon {
@@ -289,8 +291,8 @@
 }
 
 .quiz-results__score--passed {
-  background: rgba(16, 185, 129, 0.1);
-  border: 2px solid var(--success);
+  background: rgba(99, 102, 241, 0.1);
+  border: 2px solid var(--primary);
 }
 
 .quiz-results__score--failed {
@@ -306,7 +308,7 @@
 }
 
 .quiz-results__score--passed .quiz-results__score-number {
-  color: var(--success);
+  color: var(--primary);
 }
 
 .quiz-results__score--failed .quiz-results__score-number {
@@ -345,8 +347,8 @@
 }
 
 .quiz-results__stat--correct {
-  border-color: var(--success);
-  color: var(--success);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .quiz-results__stat--incorrect {
@@ -380,8 +382,8 @@
 }
 
 .quiz-results__status--passed {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success);
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
 }
 
 .quiz-results__status--failed {
@@ -402,8 +404,8 @@
 }
 
 .quiz-question__status--correct {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success);
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
 }
 
 .quiz-question__status--incorrect {
@@ -439,7 +441,7 @@
 }
 
 .quiz-option__badge--correct {
-  background: var(--success);
+  background: var(--primary);
 }
 
 .quiz-question__answer-summary {
@@ -472,7 +474,7 @@
 }
 
 .quiz-question__answer-value--correct {
-  color: var(--success);
+  color: var(--primary);
 }
 
 .quiz-question__answer-value--incorrect {
@@ -541,8 +543,8 @@
 }
 
 .quiz-history__item-status--passed {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success);
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--primary);
 }
 
 .quiz-history__item-status--failed {

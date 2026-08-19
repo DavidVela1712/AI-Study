@@ -39,8 +39,9 @@
 }
 
 .study-panel__content {
-  min-height: 60vh;
+  min-height: 0;
   display: grid;
+  overflow: hidden;
 }
 
 .study-panel--empty {

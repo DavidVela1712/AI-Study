@@ -26,6 +26,10 @@ public class Flashcard {
     @Column(name = "created_at")
     private Timestamp createdAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "processing_status")
+    private ProcessingStatus processingStatus = ProcessingStatus.PENDING;
+
     public Flashcard() {
         super();
     }
@@ -68,5 +72,13 @@ public class Flashcard {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public ProcessingStatus getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(ProcessingStatus processingStatus) {
+        this.processingStatus = processingStatus;
     }
 }

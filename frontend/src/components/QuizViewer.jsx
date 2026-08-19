@@ -5,7 +5,7 @@ import './QuizViewer.css'
 import useResource from '../hooks/useResource'
 import { getQuizByDocument, generateQuiz, regenerateQuiz, createQuizAttempt, getQuizAttempts } from '../services/quizService'
 
-function QuizViewer({ document }) {
+function QuizViewer({ document, studyStatus }) {
   const [quizPhase, setQuizPhase] = useState('taking') // 'taking' | 'results' | 'review' | 'history'
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [userAnswers, setUserAnswers] = useState({}) // { questionIndex: 'A' | 'B' | 'C' | 'D' }
@@ -31,6 +31,13 @@ function QuizViewer({ document }) {
       loadAttemptHistory()
     }
   }, [quiz])
+
+  // Auto-reload when studyStatus changes to COMPLETED
+  useEffect(() => {
+    if (studyStatus === 'COMPLETED' && status === 'empty') {
+      reload()
+    }
+  }, [studyStatus, status, reload])
 
   // Load attempt history when quiz is available
   const loadAttemptHistory = useCallback(async () => {
@@ -173,11 +180,20 @@ function QuizViewer({ document }) {
     return { correct, incorrect, unanswered, total, percentage, grade, passed }
   }, [quiz, userAnswers, currentAttempt])
 
-  if (status === 'loading') {
+  if (status === 'loading' || studyStatus === 'PROCESSING') {
     return (
       <div className="quiz-viewer quiz-viewer--loading">
         <div className="loading-spinner"></div>
         <p>Generando test...</p>
+      </div>
+    )
+  }
+
+  if (studyStatus === 'FAILED') {
+    return (
+      <div className="quiz-viewer quiz-viewer--error">
+        <p>Error al generar el test automáticamente.</p>
+        <button className="btn btn-primary" onClick={handleGenerateNewQuiz}>Reintentar</button>
       </div>
     )
   }

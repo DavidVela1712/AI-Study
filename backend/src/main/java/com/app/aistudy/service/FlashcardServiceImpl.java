@@ -41,12 +41,21 @@ public class FlashcardServiceImpl implements FlashcardService {
 
         List<Flashcard> existingFlashcards = flashcardRepository.findByDocument(document);
         if (!existingFlashcards.isEmpty()) {
+            if (existingFlashcards.get(0).getProcessingStatus() == com.app.aistudy.model.ProcessingStatus.PROCESSING) {
+                throw new RuntimeException("Las flashcards ya están siendo generadas");
+            }
             throw new RuntimeException("Ya existen flashcards para este documento. Usa la función de regenerar para actualizarlas.");
         }
 
         String flashcardsContent = aiService.generateFlashcards(document.getExtractedText());
         
         List<Flashcard> flashcards = parseFlashcardsContent(flashcardsContent, document);
+        
+        // Set processing status to COMPLETED for all flashcards
+        for (Flashcard flashcard : flashcards) {
+            flashcard.setProcessingStatus(com.app.aistudy.model.ProcessingStatus.COMPLETED);
+        }
+        
         List<Flashcard> savedFlashcards = flashcardRepository.saveAll(flashcards);
         
         return savedFlashcards.stream()

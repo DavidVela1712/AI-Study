@@ -26,6 +26,10 @@ public class Summary {
     @Column(name = "updated_at")
     private Timestamp updatedAt;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "processing_status")
+    private ProcessingStatus processingStatus = ProcessingStatus.PENDING;
+
     public Summary() {
         super();
     }
@@ -68,5 +72,13 @@ public class Summary {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public ProcessingStatus getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(ProcessingStatus processingStatus) {
+        this.processingStatus = processingStatus;
     }
 }

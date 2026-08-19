@@ -1,12 +1,69 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SummarySection from './SummarySection'
 import FlashcardViewer from './FlashcardViewer'
 import QuizViewer from './QuizViewer'
 import ChatPanel from './ChatPanel'
+import { getStudyStatus } from '../services/studyStatusService'
 import './StudyPanel.css'
 
 function StudyPanel({ document }) {
   const [activeTab, setActiveTab] = useState('summary')
+  const [studyStatus, setStudyStatus] = useState(null)
+
+  useEffect(() => {
+    if (!document) return
+
+    let intervalId
+    let isPolling = true
+
+    const pollStatus = async () => {
+      try {
+        const status = await getStudyStatus(document.idDocument)
+        setStudyStatus(status)
+
+        // Check if all resources are completed or failed
+        const allDone = 
+          (status.summary === 'COMPLETED' || status.summary === 'FAILED') &&
+          (status.flashcards === 'COMPLETED' || status.flashcards === 'FAILED') &&
+          (status.quiz === 'COMPLETED' || status.quiz === 'FAILED')
+
+        if (allDone) {
+          isPolling = false
+          clearInterval(intervalId)
+        }
+      } catch (error) {
+        console.error('Error polling study status:', error)
+      }
+    }
+
+    // Initial poll
+    pollStatus()
+
+    // Set up polling interval (every 3 seconds)
+    intervalId = setInterval(() => {
+      if (isPolling) {
+        pollStatus()
+      } else {
+        clearInterval(intervalId)
+      }
+    }, 3000)
+
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [document])
+
+  const isGenerating = (status) => {
+    return status === 'PROCESSING'
+  }
+
+  const isFailed = (status) => {
+    return status === 'FAILED'
+  }
+
+  const isCompleted = (status) => {
+    return status === 'COMPLETED'
+  }
 
   if (!document) {
     return (
@@ -49,15 +106,15 @@ function StudyPanel({ document }) {
 
       <div className="study-panel__content">
         {activeTab === 'summary' && (
-          <SummarySection document={document} />
+          <SummarySection document={document} studyStatus={studyStatus?.summary} />
         )}
 
         {activeTab === 'flashcards' && (
-          <FlashcardViewer document={document} />
+          <FlashcardViewer document={document} studyStatus={studyStatus?.flashcards} />
         )}
 
         {activeTab === 'quiz' && (
-          <QuizViewer document={document} />
+          <QuizViewer document={document} studyStatus={studyStatus?.quiz} />
         )}
 
         {activeTab === 'chat' && (

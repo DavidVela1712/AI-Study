@@ -3,6 +3,8 @@
   flex-direction: column;
   height: 100%;
   gap: 1rem;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .flashcard-viewer--loading,
