@@ -14,7 +14,7 @@ function QuizViewer({ document, studyStatus }) {
   const [isSaving, setIsSaving] = useState(false)
   const { addToast } = useToast()
 
-  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === null || studyStatus === undefined
+  const shouldLoad = studyStatus === 'COMPLETED'
 
   const { status, data: quiz, error, generate, regenerate, reload } = useResource({
     documentId: document ? document.idDocument : null,
@@ -183,7 +183,7 @@ function QuizViewer({ document, studyStatus }) {
     return { correct, incorrect, unanswered, total, percentage, grade, passed }
   }, [quiz, userAnswers, currentAttempt])
 
-  if (status === 'loading' || studyStatus === 'PROCESSING') {
+  if (status === 'loading' || studyStatus === 'PROCESSING' || studyStatus === 'PENDING') {
     return (
       <div className="quiz-viewer quiz-viewer--loading">
         <div className="loading-spinner"></div>

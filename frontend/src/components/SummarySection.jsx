@@ -8,7 +8,7 @@ import { useToast } from '../context/ToastContext'
 function SummarySection({ document, studyStatus }) {
   const { addToast } = useToast()
 
-  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === null || studyStatus === undefined
+  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === 'FAILED'
 
   const { status, data: summary, error, generate, regenerate, remove, reload } = useResource({
     documentId: document ? document.idDocument : null,
@@ -78,7 +78,7 @@ function SummarySection({ document, studyStatus }) {
         </div>
       </div>
 
-      {(status === 'loading' || studyStatus === 'PROCESSING') && (
+      {(status === 'loading' || studyStatus === 'PROCESSING' || studyStatus === 'PENDING') && (
         <div className="summary-section__loading">
           <div className="loading-spinner"></div>
           <p>Generando contenido con IA...</p>

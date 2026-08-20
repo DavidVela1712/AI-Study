@@ -53,6 +53,9 @@ public class StudyStatusService {
         StudyProgress progress = studyProgressRepository.findByDocument(document)
                 .orElseGet(() -> createAndSaveDefaultProgress(document));
         
+        // Refresh to get latest state in case of concurrent access
+        progress = studyProgressRepository.findById(progress.getIdProgress()).orElse(progress);
+        
         boolean needsGeneration = false;
         
         if (progress.getSummaryStatus() == ProcessingStatus.PENDING) {
@@ -79,6 +82,7 @@ public class StudyStatusService {
         return progress;
     }
 
+    @Transactional
     private StudyProgress createAndSaveDefaultProgress(Document document) {
         StudyProgress progress = createDefaultProgress(document);
         progress.setCreatedAt(new Timestamp(System.currentTimeMillis()));

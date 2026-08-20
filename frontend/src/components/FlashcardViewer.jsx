@@ -10,7 +10,7 @@ function FlashcardViewer({ document, studyStatus }) {
   const [showAnswer, setShowAnswer] = useState(false)
   const { addToast } = useToast()
 
-  const shouldLoad = studyStatus === 'COMPLETED' || studyStatus === null || studyStatus === undefined
+  const shouldLoad = studyStatus === 'COMPLETED'
 
   const { status, data: flashcards, error, generate, regenerate, reload } = useResource({
     documentId: document ? document.idDocument : null,
@@ -59,7 +59,7 @@ function FlashcardViewer({ document, studyStatus }) {
     }
   }, [studyStatus, status, reload])
 
-  if (status === 'loading' || studyStatus === 'PROCESSING') {
+  if (status === 'loading' || studyStatus === 'PROCESSING' || studyStatus === 'PENDING') {
     return (
       <div className="flashcard-viewer flashcard-viewer--loading">
         <div className="loading-spinner"></div>

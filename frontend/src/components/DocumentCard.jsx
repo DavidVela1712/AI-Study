@@ -1,4 +1,4 @@
-import { FileText, File, Image, Paperclip } from 'lucide-react'
+import { FileText, File, Image, Paperclip, BookOpen, Sparkles, Clock3 } from 'lucide-react'
 import './DocumentCard.css'
 
 function DocumentCard({ document, selected, onSelect, disabled, disabledReason }) {
@@ -65,6 +65,32 @@ function DocumentCard({ document, selected, onSelect, disabled, disabledReason }
           <span>{formatFileSize(document.fileSize)}</span>
           <span>•</span>
           <span>{formatDate(document.createdAt)}</span>
+          {document.subjectName && (
+            <>
+              <span>•</span>
+              <span>{document.subjectName}</span>
+            </>
+          )}
+        </div>
+        <div className="document-card__resources">
+          {document.hasSummary && (
+            <div className="document-card__resource" title="Resumen disponible">
+              <BookOpen size={14} />
+              <span>Resumen</span>
+            </div>
+          )}
+          {document.hasFlashcards && (
+            <div className="document-card__resource" title="Flashcards disponibles">
+              <Sparkles size={14} />
+              <span>Flashcards</span>
+            </div>
+          )}
+          {document.hasQuiz && (
+            <div className="document-card__resource" title="Test disponible">
+              <Clock3 size={14} />
+              <span>Test</span>
+            </div>
+          )}
         </div>
         <div className={`document-card__status ${status.className}`}>
           <span className="status-icon">{status.icon}</span>

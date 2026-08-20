@@ -27,62 +27,69 @@ public class StudyOrchestrator {
     private QuizService quizService;
 
     @Async
-    @Transactional
     public void generateStudyResources(Document document) {
         try {
             StudyProgress progress = getOrCreateProgress(document);
             
+            // Double-check status to prevent concurrent generation
+            if (progress.getSummaryStatus() != ProcessingStatus.PENDING &&
+                progress.getFlashcardsStatus() != ProcessingStatus.PENDING &&
+                progress.getQuizStatus() != ProcessingStatus.PENDING) {
+                System.out.println("Generation already in progress or completed, skipping");
+                return;
+            }
+            
             // Generate Summary
             if (progress.getSummaryStatus() == ProcessingStatus.PENDING) {
-                progress.setSummaryStatus(ProcessingStatus.PROCESSING);
-                studyProgressRepository.save(progress);
+                updateSummaryStatus(progress, ProcessingStatus.PROCESSING);
                 
                 try {
                     summaryService.generateSummary(document.getIdDocument());
-                    progress.setSummaryStatus(ProcessingStatus.COMPLETED);
+                    updateSummaryStatus(progress, ProcessingStatus.COMPLETED);
                 } catch (Exception e) {
-                    progress.setSummaryStatus(ProcessingStatus.FAILED);
+                    System.err.println("Error generating summary: " + e.getMessage());
+                    e.printStackTrace();
+                    updateSummaryStatus(progress, ProcessingStatus.FAILED);
                 }
-                studyProgressRepository.save(progress);
             }
             
             // Generate Flashcards
             if (progress.getFlashcardsStatus() == ProcessingStatus.PENDING) {
-                progress.setFlashcardsStatus(ProcessingStatus.PROCESSING);
-                studyProgressRepository.save(progress);
+                updateFlashcardsStatus(progress, ProcessingStatus.PROCESSING);
                 
                 try {
                     flashcardService.generateFlashcards(document.getIdDocument());
-                    progress.setFlashcardsStatus(ProcessingStatus.COMPLETED);
+                    updateFlashcardsStatus(progress, ProcessingStatus.COMPLETED);
                 } catch (Exception e) {
-                    progress.setFlashcardsStatus(ProcessingStatus.FAILED);
+                    System.err.println("Error generating flashcards: " + e.getMessage());
+                    e.printStackTrace();
+                    updateFlashcardsStatus(progress, ProcessingStatus.FAILED);
                 }
-                studyProgressRepository.save(progress);
             }
             
             // Generate Quiz
             if (progress.getQuizStatus() == ProcessingStatus.PENDING) {
-                progress.setQuizStatus(ProcessingStatus.PROCESSING);
-                studyProgressRepository.save(progress);
+                updateQuizStatus(progress, ProcessingStatus.PROCESSING);
                 
                 try {
                     quizService.generateQuiz(document.getIdDocument());
-                    progress.setQuizStatus(ProcessingStatus.COMPLETED);
+                    updateQuizStatus(progress, ProcessingStatus.COMPLETED);
                 } catch (Exception e) {
-                    progress.setQuizStatus(ProcessingStatus.FAILED);
+                    System.err.println("Error generating quiz: " + e.getMessage());
+                    e.printStackTrace();
+                    updateQuizStatus(progress, ProcessingStatus.FAILED);
                 }
-                studyProgressRepository.save(progress);
             }
             
-            progress.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-            studyProgressRepository.save(progress);
+            updateTimestamp(progress);
             
         } catch (Exception e) {
-            // Log error but don't crash the async task
-            System.err.println("Error in study resource generation: " + e.getMessage());
+            System.err.println("Fatal error in study resource generation: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    @Transactional
     private StudyProgress getOrCreateProgress(Document document) {
         return studyProgressRepository.findByDocument(document)
                 .orElseGet(() -> {
@@ -95,5 +102,32 @@ public class StudyOrchestrator {
                     progress.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
                     return studyProgressRepository.save(progress);
                 });
+    }
+
+    @Transactional
+    private void updateSummaryStatus(StudyProgress progress, ProcessingStatus status) {
+        progress.setSummaryStatus(status);
+        progress.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        studyProgressRepository.save(progress);
+    }
+
+    @Transactional
+    private void updateFlashcardsStatus(StudyProgress progress, ProcessingStatus status) {
+        progress.setFlashcardsStatus(status);
+        progress.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        studyProgressRepository.save(progress);
+    }
+
+    @Transactional
+    private void updateQuizStatus(StudyProgress progress, ProcessingStatus status) {
+        progress.setQuizStatus(status);
+        progress.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        studyProgressRepository.save(progress);
+    }
+
+    @Transactional
+    private void updateTimestamp(StudyProgress progress) {
+        progress.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+        studyProgressRepository.save(progress);
     }
 }
